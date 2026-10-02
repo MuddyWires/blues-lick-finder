@@ -1,13 +1,15 @@
 [project]
-name = "ai-buildcamp-project"
+name = "blues-lick-finder"
 version = "0.1.0"
-description = "My AI Engineering Buildcamp project"
+description = "Agent that finds well-taught blues guitar lessons, ranks them by teaching quality, and builds a tagged practice log"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "minsearch>=0.2.0",
     "openai>=3.16.2",
     "python-dotenv>=1.2.3",
+    "youtube-transcript-api>=1.2.4",
+    "yt-dlp>=2026.8.19",
 ]
 
 [dependency-groups]
