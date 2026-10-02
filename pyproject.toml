@@ -5,6 +5,7 @@ description = "Agent that finds well-taught blues guitar lessons, ranks them by 
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "gitsource>=0.0.5",
     "minsearch>=0.2.0",
     "openai>=3.16.2",
     "python-dotenv>=1.2.3",
