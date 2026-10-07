@@ -62,7 +62,7 @@ Tested in `03-search-eval.ipynb` against the `topic` field: `content` x2 or x3 f
 ## Data
 
 - **Two topics have no usable videos.** "Texas blues shuffle rhythm" and "slow blues soloing" have 0 videos with transcripts, so they're missing from the index. Fetch more results per topic (e.g. 10 instead of 5) to fill them.
-- **Keep transcript timestamps.** `fetch_transcript` joins the snippet text and drops `snippet.start`. If the timestamps were kept and chunks were split by time instead of characters, each result could link straight to the moment in the video (`...watch?v=ID&t=95s`). That's also what the practice log needs ("lick 3 starts at 4:12"). This needs a re-fetch of `data/lessons.json`.
+- **Keep transcript timestamps — deferred.** `fetch_transcript` joins the snippet text and drops `snippet.start`. Keeping it wouldn't need new chunking logic (`chunk_documents` already returns a character `start` offset per chunk); it would need a `(char_offset, video_seconds)` mapping built per video and a re-fetch of every cached transcript. Decided not worth it right now: it only gives a rough "chunk starts around here" link, not the exact lick, and doesn't affect ranking/retrieval quality at all. Revisit only once the practice log is actually being built. Until then, the cheaper partial substitute is the viewer-comment timestamps below.
 - **Use timestamp comments.** Viewers often post lick timestamps, e.g. "Lick 1 03:00, Lick 2 04:40, Lick 3 05:43…" (36 likes on "5 Essential B.B. King Blues Licks"). Parsing these is a cheap way to get practice-log timestamps without re-fetching transcripts.
 
 ## Housekeeping
