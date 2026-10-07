@@ -1,42 +1,77 @@
 """Fetch blues lesson videos from YouTube: metadata, transcripts, and top comments.
 
-Results are cached to data/lessons.json. Run `uv run python notebooks/youtube_data.py`
-to build or update the cache without opening Jupyter.
+Searches are listed in data/topics.txt and results are cached to data/lessons.json.
+Run `uv run python notebooks/youtube_data.py` to fetch any new topics without
+opening Jupyter.
 """
 
 import json
+import os
+import time
 from pathlib import Path
 
 import yt_dlp
-from youtube_transcript_api import YouTubeTranscriptApi
+from dotenv import load_dotenv
+from youtube_transcript_api import IpBlocked, RequestBlocked, YouTubeTranscriptApi
+from youtube_transcript_api.proxies import GenericProxyConfig
+
+
+class RotatingProxyConfig(GenericProxyConfig):
+    # DataImpulse assigns a new exit IP per connection, so force the client to
+    # open a fresh connection (and retry through a new IP) on every request.
+    @property
+    def prevent_keeping_connections_alive(self) -> bool:
+        return True
+
+    @property
+    def retries_when_blocked(self) -> int:
+        return 5
+
+
+load_dotenv()
 
 DATA_PATH = Path(__file__).parent.parent / "data" / "lessons.json"
+TOPICS_PATH = Path(__file__).parent.parent / "data" / "topics.txt"
 
-TOPICS = [
-    "BB King box blues lick lesson",
-    "Freddie King Hideaway guitar lesson",
-    "Stevie Ray Vaughan Pride and Joy guitar lesson",
-    "blues turnaround licks lesson",
-    "blues string bending technique lesson",
-    "minor pentatonic blues licks beginner lesson",
-    "Texas blues shuffle rhythm guitar lesson",
-    "slow blues soloing lesson",
-]
-RESULTS_PER_TOPIC = 5
+RESULTS_PER_TOPIC = 10
 COMMENTS_PER_VIDEO = 20
+TRANSCRIPT_DELAY_SEC = 6
 
-transcript_api = YouTubeTranscriptApi()
+
+def make_transcript_api():
+    host = os.getenv("DATAIMPULSE_PROXY_HOST")
+    port = os.getenv("DATAIMPULSE_PROXY_PORT")
+    username = os.getenv("DATAIMPULSE_PROXY_USERNAME")
+    password = os.getenv("DATAIMPULSE_PROXY_PASSWORD")
+    if host and port and username and password:
+        proxy_url = f"http://{username}:{password}@{host}:{port}"
+        return YouTubeTranscriptApi(
+            proxy_config=RotatingProxyConfig(http_url=proxy_url, https_url=proxy_url)
+        )
+    return YouTubeTranscriptApi()
+
+
+transcript_api = make_transcript_api()
+
+
+def load_topics(path=TOPICS_PATH):
+    lines = (line.strip() for line in Path(path).read_text().splitlines())
+    return [line for line in lines if line and not line.startswith("#")]
 
 
 def fetch_transcript(video_id):
+    # Let blocking errors through so a run stops instead of silently caching
+    # empty transcripts; every other failure means the video has none.
     try:
         transcript = transcript_api.fetch(video_id, languages=["en"])
+    except (RequestBlocked, IpBlocked):
+        raise
     except Exception:
         return None
     return " ".join(s.text for s in transcript.snippets)
 
 
-def fetch_lessons(topics, results_per_topic):
+def fetch_lessons(topics, results_per_topic, skip_ids=()):
     lessons = {}
     ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
 
@@ -47,7 +82,7 @@ def fetch_lessons(topics, results_per_topic):
 
             for entry in result["entries"]:
                 video_id = entry["id"]
-                if video_id in lessons:
+                if video_id in lessons or video_id in skip_ids:
                     continue
 
                 lessons[video_id] = {
@@ -62,6 +97,7 @@ def fetch_lessons(topics, results_per_topic):
                     "topic": topic,
                     "transcript": fetch_transcript(video_id),
                 }
+                time.sleep(TRANSCRIPT_DELAY_SEC)
 
     return list(lessons.values())
 
@@ -91,13 +127,17 @@ def fetch_comments(video_ids):
 
 
 def load_lessons(path=DATA_PATH):
-    # Load cached lessons, fetching from YouTube on the first run and adding
-    # comments to any lessons cached before comments were collected.
+    # Load cached lessons, fetching any topics from topics.txt that aren't
+    # cached yet and adding comments to lessons that don't have them.
     path = Path(path)
-    if path.exists():
-        documents = json.loads(path.read_text())
-    else:
-        documents = fetch_lessons(TOPICS, RESULTS_PER_TOPIC)
+    documents = json.loads(path.read_text()) if path.exists() else []
+
+    cached_topics = {doc["topic"] for doc in documents}
+    new_topics = [topic for topic in load_topics() if topic not in cached_topics]
+    for topic in new_topics:
+        # Save after each topic so an interrupted run resumes where it stopped.
+        cached_ids = {doc["video_id"] for doc in documents}
+        documents += fetch_lessons([topic], RESULTS_PER_TOPIC, skip_ids=cached_ids)
         path.write_text(json.dumps(documents, indent=2))
 
     missing = [doc["video_id"] for doc in documents if "comments" not in doc]

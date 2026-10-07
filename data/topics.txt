@@ -1,0 +1,50 @@
+# YouTube searches used to build data/lessons.json, one per line.
+# Lines starting with # and blank lines are ignored.
+# Add a line and run `uv run python notebooks/youtube_data.py` to fetch it.
+
+# Starter topics
+BB King box blues lick lesson
+Freddie King Hideaway guitar lesson
+Stevie Ray Vaughan Pride and Joy guitar lesson
+blues turnaround licks lesson
+blues string bending technique lesson
+minor pentatonic blues licks beginner lesson
+Texas blues shuffle rhythm guitar lesson
+slow blues soloing lesson
+Albert King blues licks lesson
+blues double stop licks lesson
+Eric Clapton blues licks lesson
+T-Bone Walker blues guitar lesson
+
+# Chicago blues
+Chicago blues guitar lesson beginner
+Chicago blues shuffle lesson
+Chicago blues licks lesson
+Chicago blues rhythm guitar lesson
+West Side Chicago blues guitar lesson
+Otis Rush guitar lesson
+Buddy Guy licks lesson
+Muddy Waters guitar lesson
+
+# Magic Sam
+Magic Sam guitar lesson
+Magic Sam licks lesson
+Magic Sam All Your Love guitar lesson
+Magic Sam Sweet Home Chicago lesson
+Magic Sam rhythm guitar lesson
+
+# T-Bone Walker
+T-Bone Walker licks lesson
+T-Bone Walker Stormy Monday lesson
+T-Bone Walker 9th chords lesson
+T-Bone Walker beginner blues lesson
+
+# Mixolydian in blues
+mixolydian scale blues guitar lesson
+mixolydian blues licks lesson
+mixing major and minor pentatonic blues lesson
+major pentatonic blues lesson beginner
+dominant 7 arpeggios blues soloing lesson
+playing over the chord changes blues lesson
+mixolydian vs minor pentatonic blues
+beginner blues scale lesson
