@@ -41,9 +41,13 @@ Right now the ranking LLM estimates the level on every run, from one transcript 
 
 For broad queries like "Which lessons teach the BB King box licks best?", the best chunk of every video is the first one (`start: 0`). The intro mentions the topic the most, so the LLM still sees mostly intros.
 
+- **Excerpt rule (done, Oct 9).** `instructions` now say the excerpt is often the intro and that specific comments about the teaching can outweigh it. "5 Essential B.B. King Blues Licks" moved from 4th–5th (3/5) to 3rd (4/5), with the same order in 3 runs.
 - **More specific queries.** For example "the BB King lick with the bend on the 10th fret". These match the middle of a lesson better than its intro.
-- **Smaller chunks.** Try `chunk_documents(..., size=1500, step=750)`. The intro takes up less text, and teaching sections compete more evenly.
-- **Top 2 chunks per video.** Send the intro plus the next-best section to the LLM instead of only one chunk.
+- **Small search, large window — tested Oct 9, not adopted.** Search 800-character chunks (step 400, fetch 200 results before keeping the best chunk per video), then give the LLM a ~3,200-character window around the match (800 before, 2,400 from the match on). Results on 264 lessons:
+  - Retrieval (9 topic questions, `topic` labels): same videos found (hit@5 89% both, prec@5 60% vs 58%), but the best chunk is the intro 40% of the time instead of 71%.
+  - Ranking (BB King query + "slide into the 9th fret of the G string", 2 runs each): same order on the broad query; on the specific query Marty and "& Beyond" swapped, but neither window mentions the 9th fret, so the swap isn't explained by the question.
+  - Conclusion: better location in the video, no clear ranking gain. Revisit together with transcript timestamps, where precise locations become visible as links. Fetching only 50 results is too few with small chunks (fewer than 5 videos come back).
+- **Top 2 chunks per video.** Send the intro plus the next-best section to the LLM instead of only one chunk. Roughly doubles the transcript text per prompt; only worth it if labels show the model regularly underrates lessons whose teaching starts after the intro.
 
 ## Search: weight the transcript higher
 

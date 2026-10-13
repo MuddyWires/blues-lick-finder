@@ -96,14 +96,16 @@ def fetch_lessons(topics, results_per_topic, skip_ids=()):
                     "view_count": entry.get("view_count"),
                     "topic": topic,
                     "transcript": fetch_transcript(video_id),
+                    "chapters": entry.get("chapters") or [],
                 }
                 time.sleep(TRANSCRIPT_DELAY_SEC)
 
     return list(lessons.values())
 
 
-def fetch_comments(video_ids):
-    # Top comments by likes, skipping replies and the creator's own (usually promo) comments.
+def fetch_comments_and_chapters(video_ids):
+    # Top comments by likes, skipping replies and the creator's own (usually promo)
+    # comments. Chapters come from the same video info, so fetch both together.
     ydl_opts = {
         "quiet": True,
         "no_warnings": True,
@@ -112,7 +114,7 @@ def fetch_comments(video_ids):
         "extractor_args": {"youtube": {"max_comments": ["50", "50", "0", "0"], "comment_sort": ["top"]}},
     }
 
-    comments_by_video = {}
+    extras_by_video = {}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for video_id in video_ids:
             info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
@@ -121,9 +123,12 @@ def fetch_comments(video_ids):
                 for c in info.get("comments") or []
                 if c.get("parent") == "root" and not c.get("author_is_uploader")
             ]
-            comments_by_video[video_id] = comments[:COMMENTS_PER_VIDEO]
+            extras_by_video[video_id] = {
+                "comments": comments[:COMMENTS_PER_VIDEO],
+                "chapters": info.get("chapters") or [],
+            }
 
-    return comments_by_video
+    return extras_by_video
 
 
 def load_lessons(path=DATA_PATH):
@@ -140,13 +145,15 @@ def load_lessons(path=DATA_PATH):
         documents += fetch_lessons([topic], RESULTS_PER_TOPIC, skip_ids=cached_ids)
         path.write_text(json.dumps(documents, indent=2))
 
-    missing = [doc["video_id"] for doc in documents if "comments" not in doc]
+    missing = [doc["video_id"] for doc in documents if "comments" not in doc or "chapters" not in doc]
     if missing:
-        print(f"Fetching comments for {len(missing)} videos")
-        comments_by_video = fetch_comments(missing)
+        print(f"Fetching comments/chapters for {len(missing)} videos")
+        extras_by_video = fetch_comments_and_chapters(missing)
         for doc in documents:
-            if doc["video_id"] in comments_by_video:
-                doc["comments"] = comments_by_video[doc["video_id"]]
+            extras = extras_by_video.get(doc["video_id"])
+            if extras:
+                doc.setdefault("comments", extras["comments"])
+                doc.setdefault("chapters", extras["chapters"])
         path.write_text(json.dumps(documents, indent=2))
 
     return documents
