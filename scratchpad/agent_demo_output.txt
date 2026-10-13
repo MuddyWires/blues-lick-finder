@@ -1,0 +1,140 @@
+                 pydantic-ai v2.49.0 • Python 3.13.15
+
+      / \        agent: lick_finder • model: openai:gpt-4o-mini • output: AgentResponse • tools: 6
+     /   \         capabilities: 0
+   /___.___\
+  /    |    \    observability: off — see every model and tool call live, with cost
+/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+
+                 goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+Loaded 264 lessons, 223 with transcripts, 247 with comments
+223 videos -> 1070 chunks
+Here are the ranked lessons that teach the BB King box licks best:
+
+### 1. Learn 10 Classic Blues Licks in the BB King Box!
+- **Channel:** swiftlessons
+- **URL:** [Watch here](https://www.youtube.com/watch?v=i6Ho6aubraw)
+- **Score:** 5
+- **Justification:** This video excels in breaking down licks into manageable parts with clear explanations, naming frets, and showcasing various techniques. It also offers a comprehensive approach to the BB King box.
+- **Viewer Evidence:** "one of the best teachers on the net, very usable and slow enough to learn, not just a fast short tease" (16 likes)
+- **Level:** Intermediate; it covers understanding the box while using practical licks in context.
+- **Tags:** BB King box, blues licks, 1-4-5 progression
+
+---
+
+### 2. The BB King Box & Beyond - Blues Lead Guitar Lesson
+- **Channel:** swiftlessons
+- **URL:** [Watch here](https://www.youtube.com/watch?v=pZz-QHt8UBc)
+- **Score:** 4
+- **Justification:** This lesson provides a clear review of the BB King box, showcases adjacent chords and scales, and offers various ideas to work with, making it a well-rounded lesson.
+- **Viewer Evidence:** "I don't often put my guitar down and just watch and listen, but I do for this fellow." (28 likes)
+- **Level:** Intermediate; the lesson assumes basic knowledge and focuses on chord changes and more advanced linking ideas.
+- **Tags:** BB King box, adjacent chords, blues progression 
+
+---
+
+### 3. 5 Essential B.B. King Blues Licks | Lead Guitar Tutorial
+- **Channel:** swiftlessons
+- **URL:** [Watch here](https://www.youtube.com/watch?v=sL1kT4VqYR8)
+- **Score:** 4
+- **Justification:** This tutorial effectively breaks down classic licks while incorporating scale patterns and context, making it practical for learning and application.
+- **Viewer Evidence:** "You are better than tons of other guitar tutors up in here. I like how you break down things into small steps." (24 likes)
+- **Level:** Intermediate; it includes prerequisite scales and contextualizes licks within a blues progression.
+- **Tags:** BB King licks, blues tutorial, lead guitar 
+
+---
+
+### 4. The Ultimate B.B. King Lick Tutorial
+- **Channel:** Marty Music
+- **URL:** [Watch here](https://www.youtube.com/watch?v=-h49wjjL4SQ)
+- **Score:** 3
+- **Justification:** While providing solid licks and teaching how to mix scales, the lesson lacks in-depth breakdown and specific naming of techniques compared to the top-rated lessons.
+- **Viewer Evidence:** "Bingo! Finally, some clarity on the BB box, and his unique, very distinctive style!" (3 likes)
+- **Level:** Intermediate; it covers essential BB King techniques but doesn't dwell deeply on theory and structure.
+- **Tags:** BB King box, guitar tutorial, blues licks 
+
+---
+
+### 5. The B.B King box (Use this to create endless Blues Licks)
+- **Channel:** GuitarJamz
+- **URL:** [Watch here](https://www.youtube.com/watch?v=_jkXedtQHbA)
+- **Score:** 2
+- **Justification:** This lesson presents useful devices for soloing but may not provide enough depth or clarity for beginners and lacks viewer comments to support teaching quality.
+- **Viewer Evidence:** none 
+- **Level:** Beginner; it focuses on basic techniques but without a solid framework for progression and context.
+- **Tags:** BB King box, blues techniques, guitar licks 
+
+--- 
+
+These options should provide a comprehensive guide to learning about the BB King box licks effectively!
+
+================================================================================
+QUESTION: Find me a lesson on string bending for beginners.
+================================================================================
+
+TOOL CALL: search_lessons({"query":"string bending beginner"})
+
+TOOL CALL: save_lesson({"video_id":"fgDY8k0Gjzc","song":"","technique":"string bending","key":"","level":"beginner"})
+
+TOOL CALL: save_lesson({"video_id":"NG9Pq5kSFqg","song":"","technique":"string bending","key":"","level":"beginner"})
+
+TOOL CALL: save_lesson({"video_id":"6T-DjrQ6r8Q","song":"","technique":"string bending","key":"","level":"beginner"})
+I've found and saved three great beginner lessons on string bending:
+
+1. **[Bending Technique In Blues Lead Guitar](https://www.youtube.com/watch?v=fgDY8k0Gjzc)** by JustinGuitar  
+   - Description: Focuses on string bending techniques essential for blues guitar.
+   - Level: Beginner
+
+2. **[How To BEND STRINGS On Electric Guitar Without Hitting Others](https://www.youtube.com/watch?v=NG9Pq5kSFqg)** by Michael Banfield  
+   - Description: Covers five tips for clean and effective string bending.
+   - Level: Beginner
+
+3. **[Blues Guitar Lesson: String Bending Techniques](https://www.youtube.com/watch?v=6T-DjrQ6r8Q)** by Berklee Online  
+   - Description: Explains various techniques used by professional blues players.
+   - Level: Beginner
+
+You can start practicing with these lessons! Let me know if you need more help.
+
+FINAL ANSWER OBJECT:
+answer="I've found and saved three great beginner lessons on string bending:\n\n1. **[Bending Technique In Blues Lead Guitar](https://www.youtube.com/watch?v=fgDY8k0Gjzc)** by JustinGuitar  \n   - Description: Focuses on string bending techniques essential for blues guitar.\n   - Level: Beginner\n\n2. **[How To BEND STRINGS On Electric Guitar Without Hitting Others](https://www.youtube.com/watch?v=NG9Pq5kSFqg)** by Michael Banfield  \n   - Description: Covers five tips for clean and effective string bending.\n   - Level: Beginner\n\n3. **[Blues Guitar Lesson: String Bending Techniques](https://www.youtube.com/watch?v=6T-DjrQ6r8Q)** by Berklee Online  \n   - Description: Explains various techniques used by professional blues players.\n   - Level: Beginner\n\nYou can start practicing with these lessons! Let me know if you need more help."
+
+================================================================================
+QUESTION: What have I saved so far?
+================================================================================
+
+TOOL CALL: get_history({})
+You have saved the following lessons:
+
+1. **String Bending**  
+   [Watch here](https://www.youtube.com/watch?v=fgDY8k0Gjzc)  
+   - Level: Beginner  
+   - Viewed: 0 times  
+   - Liked: No  
+
+2. **String Bending**  
+   [Watch here](https://www.youtube.com/watch?v=NG9Pq5kSFqg)  
+   - Level: Beginner  
+   - Viewed: 0 times  
+   - Liked: No  
+
+3. **String Bending**  
+   [Watch here](https://www.youtube.com/watch?v=6T-DjrQ6r8Q)  
+   - Level: Beginner  
+   - Viewed: 0 times  
+   - Liked: No  
+
+All saved lessons focus on string bending and are at a beginner level.
+
+FINAL ANSWER OBJECT:
+answer='You have saved the following lessons:\n\n1. **String Bending**  \n   [Watch here](https://www.youtube.com/watch?v=fgDY8k0Gjzc)  \n   - Level: Beginner  \n   - Viewed: 0 times  \n   - Liked: No  \n\n2. **String Bending**  \n   [Watch here](https://www.youtube.com/watch?v=NG9Pq5kSFqg)  \n   - Level: Beginner  \n   - Viewed: 0 times  \n   - Liked: No  \n\n3. **String Bending**  \n   [Watch here](https://www.youtube.com/watch?v=6T-DjrQ6r8Q)  \n   - Level: Beginner  \n   - Viewed: 0 times  \n   - Liked: No  \n\nAll saved lessons focus on string bending and are at a beginner level.'
+
+================================================================================
+QUESTION: Delete the BB King box lesson from my history.
+================================================================================
+
+TOOL CALL: get_history({"filter":"BB King","limit":10})
+It seems there are no lessons related to "BB King" in your history. Therefore, there's nothing to delete.
+
+FINAL ANSWER OBJECT:
+answer='It seems there are no lessons related to "BB King" in your history. Therefore, there\'s nothing to delete.'
