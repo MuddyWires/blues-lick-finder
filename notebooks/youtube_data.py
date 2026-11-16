@@ -37,6 +37,17 @@ RESULTS_PER_TOPIC = 10
 COMMENTS_PER_VIDEO = 20
 TRANSCRIPT_DELAY_SEC = 6
 
+# Signals the video itself is sponsored content, not a lesson that merely
+# mentions its own paid course or PDF, or carries a standard affiliate-link
+# disclosure (both are near-universal boilerplate even on good lessons, and
+# a teaching-quality issue the agent's ranking rubric already handles, not a
+# reason to skip ingestion).
+PROMO_SIGNALS = (
+    "sponsored by",
+    "this video is sponsored",
+    "paid partnership",
+)
+
 
 def make_transcript_api():
     host = os.getenv("DATAIMPULSE_PROXY_HOST")
@@ -71,9 +82,14 @@ def fetch_transcript(video_id):
     return " ".join(s.text for s in transcript.snippets)
 
 
+def is_promotional(entry):
+    text = f"{entry.get('title') or ''} {entry.get('description') or ''}".lower()
+    return any(signal in text for signal in PROMO_SIGNALS)
+
+
 def fetch_lessons(topics, results_per_topic, skip_ids=()):
     lessons = {}
-    ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
+    ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True, "ignoreerrors": True}
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for topic in topics:
@@ -81,8 +97,12 @@ def fetch_lessons(topics, results_per_topic, skip_ids=()):
             result = ydl.extract_info(f"ytsearch{results_per_topic}:{topic}", download=False)
 
             for entry in result["entries"]:
+                if entry is None:
+                    continue  # yt-dlp returns None for entries it couldn't extract (e.g. removed videos)
                 video_id = entry["id"]
                 if video_id in lessons or video_id in skip_ids:
+                    continue
+                if is_promotional(entry):
                     continue
 
                 lessons[video_id] = {
