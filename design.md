@@ -1,8 +1,8 @@
 # RFC: Agent tools for the Blues Lick Finder
 
-- **Status:** Draft
+- **Status:** Implemented (all six tools), updated 2026-11-16
 - **Date:** 2026-10-07
-- **Scope:** Tool design for turning the week 1 RAG pipeline into a tool-calling agent. No code yet.
+- **Scope:** Tool design for turning the week 1 RAG pipeline into a tool-calling agent. Code is in `lick_finder/`.
 
 ## Summary
 
@@ -58,6 +58,8 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 - **Saving and liking are separate tools.** You save a lesson when you pick it, but only know if you like it after practicing.
 - **Replay goes through a tool.** Opening a URL directly would work, but the agent could not record the view, and (g) depends on views.
 - **No `user_id` yet.** History lives in one file (e.g. `data/practice_log.json`). When other users arrive, `user_id` becomes one extra input on tools 2–5.
+- **Search is vector-based by default.** Chunks are embedded with `text-embedding-3-small` (cached in `data/chunk_embeddings.npz`). See "Retrieval" below for the eval.
+- **Starting the agent never fetches from YouTube.** It reads the cache only. Fetching is the separate command `python -m lick_finder.youtube_data`, so the "queue, don't fetch live" decision also holds at startup.
 
 ## Alternatives rejected
 
@@ -66,25 +68,58 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 - **`search_lessons` fetching from YouTube on its own:** hides slow, failure-prone work inside what looks like a fast search.
 - **`replay_lesson` that only returns a URL:** replaced by `open_lesson`, which also records the view.
 - **A "theory" tool for questions like mixolydian:** the LLM can explain theory without a tool.
+- **TF-IDF + vector hybrid as the default:** equal-weight fusion scored below vector alone (hit@5 0.56 against 0.64), and down-weighting TF-IDF only approached vector (0.63). `tfidf` and `hybrid` stay available as `method=` options.
 
 ## Data prerequisites
 
-One feature needs data the current fetch code (`notebooks/youtube_data.py`) doesn't store yet:
+`level` was the one feature that needed data the fetch code (`lick_finder/youtube_data.py`) didn't store. It is now done:
 
-| Data | Needed for | Work | Re-fetch from YouTube? |
-|---|---|---|---|
-| `level` per video (beginner / intermediate / advanced / unclear) | `search_lessons(level=...)`, requests b and "Magic Sam beginner licks" | One LLM call per video over title, tags, start of transcript, and comments; add `level` to the index's `keyword_fields` | No |
+| Data | Needed for | Result |
+|---|---|---|
+| `level` per video (beginner / intermediate / advanced / unclear) | `search_lessons(level=...)`, requests b and "Magic Sam beginner licks" | One `gpt-5.4-mini` call per video over title, tags, start of transcript, and comments, cached in `data/levels.json`. 655 lessons: 310 intermediate, 181 beginner, 132 unclear, 32 advanced (about $0.40). Unclear lessons stay eligible when a level is requested. |
 
-Timestamps are out of scope. The agent gives a timestamp only when a viewer comment states it, quoted word for word, and never guesses one.
+Timestamps are still out of scope. The agent gives a timestamp only when a viewer comment states it, quoted word for word, and never guesses one. Deep links to specific licks were considered and parked: they need ~53 minutes of transcript re-fetching, and a cheaper option exists (show the agent a video's chapters, already stored in `lessons.json`).
+
+## Retrieval
+
+Measured on 200 questions an LLM wrote from sampled chunks (`python -m evals.generated`; did the source video land in the top 5?):
+
+| Method | hit@5 | MRR |
+|---|---|---|
+| tfidf | 0.34 | 0.24 |
+| vector (default) | 0.64 | 0.46 |
+| hybrid (equal weights) | 0.56 | 0.38 |
+| hybrid@0.25 (TF-IDF weighted 0.25) | 0.63 | 0.43 |
+
+A 14-query song-name check (`python -m evals.named`) found no case where TF-IDF helps (hit@5 1.00 for every method). Caveat: the questions are machine-written, so the numbers compare methods and are not absolute accuracy.
 
 ## Rollout
 
-1. **Day 1:** `search_lessons`, `save_lesson`, `get_history` (covers a, b once levels exist, c roughly, f, g in a basic form).
-2. **Next:** `open_lesson` and `like_lesson` (full g and h).
-3. **Then:** `queue_topic`.
-4. **In parallel:** compute a level for each video.
+1. **Day 1:** `search_lessons`, `save_lesson`, `get_history` (covers a, b once levels exist, c roughly, f, g in a basic form). *Done.*
+2. **Next:** `open_lesson` and `like_lesson` (full g and h). *Done.*
+3. **Then:** `queue_topic`. *Done.*
+4. **In parallel:** compute a level for each video. *Done.*
+5. **Also done:** vector search, the `lick_finder/` package, the `python -m lick_finder` chat, and 20 tests.
+
+## Implementation
+
+```
+lick_finder/   search.py, tools.py, agent.py, paths.py, levels.py, embeddings.py, youtube_data.py
+evals/         generated.py (LLM-written questions), named.py (song-name queries)
+tests/         tools and search helpers; no OpenAI calls
+```
+
+- Chat with the agent: `uv run python -m lick_finder`
+- Fetch new topics from `data/topics.txt`: `uv run python -m lick_finder.youtube_data`
+- Run the evals: `uv run python -m evals.generated 200`, `uv run python -m evals.named`
+- Tests: `uv run pytest`
+
+The first start after a fetch labels new lessons and embeds new chunks (small OpenAI calls, cached on disk).
 
 ## Open questions
 
 - How should the agent choose between several valid suggestions for (g)? Start with the three rules above and adjust after real use.
 - Should `get_history` also return a lesson's transcript chunk or comments, or only the saved entry? Start with the saved entry only.
+- When a FastAPI service arrives: add `user_id` to tools 2–5 and move the JSON log to a small database (today's lock is per process).
+- Deep links: revisit only if wanted, and try the chapter-list option first.
+- Exact song-name queries are only lightly tested (14 queries). Revisit hybrid search if a real miss shows up.
