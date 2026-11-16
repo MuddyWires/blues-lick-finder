@@ -3,10 +3,10 @@ revision = 3
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform == 'win32'",
-    "python_full_version == '3.14.*' and sys_platform == 'win32'",
     "python_full_version >= '3.15' and sys_platform == 'emscripten'",
-    "python_full_version == '3.14.*' and sys_platform == 'emscripten'",
     "python_full_version >= '3.15' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.14.*' and sys_platform == 'win32'",
+    "python_full_version == '3.14.*' and sys_platform == 'emscripten'",
     "python_full_version == '3.14.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
     "python_full_version < '3.14' and sys_platform == 'win32'",
     "python_full_version < '3.14' and sys_platform == 'emscripten'",
@@ -247,6 +247,7 @@ dependencies = [
     { name = "gitsource" },
     { name = "jaxn" },
     { name = "minsearch" },
+    { name = "numpy" },
     { name = "openai" },
     { name = "pydantic-ai" },
     { name = "python-dotenv" },
@@ -264,6 +265,7 @@ requires-dist = [
     { name = "gitsource", specifier = ">=0.0.5" },
     { name = "jaxn", specifier = ">=0.0.5" },
     { name = "minsearch", specifier = ">=0.2.0" },
+    { name = "numpy", specifier = ">=2.0" },
     { name = "openai", specifier = ">=3.16.2" },
     { name = "pydantic-ai", specifier = ">=1.59.0" },
     { name = "python-dotenv", specifier = ">=1.2.3" },
