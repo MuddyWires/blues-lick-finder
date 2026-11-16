@@ -1,6 +1,9 @@
 import pytest
 
+from lick_finder.lessons import LessonStore
 from lick_finder.tools import LickFinderTools
+
+KNOWN_IDS = ["abc", "a", "b", "c", "old", "new"]
 
 
 @pytest.fixture
@@ -11,6 +14,7 @@ def tools(tmp_path):
         practice_log_path=tmp_path / "practice_log.json",
         topics_path=topics,
         search_fn=lambda query, level=None: [{"query": query, "level": level}],
+        store=LessonStore([{"video_id": v} for v in KNOWN_IDS], {}),
     )
 
 
@@ -123,3 +127,15 @@ def test_change_saved_lesson_is_a_no_op(tools):
         assert "Not supported" in tools.change_saved_lesson("abc", action)
 
     assert tools.practice_log_path.read_text() == before
+
+
+def test_save_lesson_rejects_an_id_that_is_not_in_the_lesson_data(tools):
+    result = save(tools, "xyz123")
+
+    assert "not in the lesson data" in result
+    assert tools.get_history() == []
+    assert not tools.practice_log_path.exists()
+
+
+def test_save_lesson_still_saves_a_known_id(tools):
+    assert save(tools, "abc")["video_id"] == "abc"

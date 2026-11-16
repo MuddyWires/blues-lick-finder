@@ -4,6 +4,7 @@ from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Literal, Optional
 
+from .lessons import get_store
 from .paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from .search import search
 
@@ -18,10 +19,12 @@ class LickFinderTools:
         practice_log_path: Path = PRACTICE_LOG_PATH,
         topics_path: Path = TOPICS_PATH,
         search_fn=search,
+        store=None,
     ):
         self.practice_log_path = practice_log_path
         self.topics_path = topics_path
         self._search = search_fn
+        self._store = store
         self._lock = Lock()
 
     def _read_log(self):
@@ -58,6 +61,10 @@ class LickFinderTools:
             key: The musical key, or "" if none is named.
             level: Your estimate of the lesson's level.
         """
+        if video_id not in (self._store or get_store()):
+            return (f"video {video_id} is not in the lesson data; use a "
+                    "video_id from the search results")
+
         with self._lock:
             entries = self._read_log()
             if any(e["video_id"] == video_id for e in entries):
