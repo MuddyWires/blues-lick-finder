@@ -57,12 +57,18 @@ def label_level(doc):
     return out
 
 
+def read_levels(path=LEVELS_PATH):
+    """The cached levels, with no OpenAI calls (unlike load_levels)."""
+    path = Path(path)
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
 def load_levels(documents, path=LEVELS_PATH, limit=None):
     """Label videos missing from levels.json (saved after each one, so an
     interrupted run resumes), then merge `level` into each document."""
     path = Path(path)
-    levels = json.loads(path.read_text()) if path.exists() else {}
-    todo = [d for d in documents if d["video_id"] not in levels][:limit]
+    levels = read_levels(path)
+    todo =[d for d in documents if d["video_id"] not in levels][:limit]
     for i, doc in enumerate(todo, 1):
         levels[doc["video_id"]] = label_level(doc)
         path.write_text(json.dumps(levels, indent=2))
