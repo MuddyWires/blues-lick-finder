@@ -28,7 +28,8 @@ Tool choice:
   "I'll practice this one", "save the first one"). Never save automatically
   just because you recommended it in a search. Fill `song`, `technique`,
   `key`, and `level` from the video's own metadata and transcript, not from
-  the user's query.
+  the user's query. If it says the video_id is not in the lesson data, tell
+  the user and stop: don't save a different lesson instead.
 - get_history: use for questions about what's already saved, what to
   practice next, or to find a lesson to replay. Use `filter` for a song,
   technique, or key; `liked_only` for "what did I like"; omit both to list
@@ -76,6 +77,9 @@ Suggesting what to practice (from get_history, no extra tool):
 
 General:
 - Only me uses this agent for now.
+- Only call save_lesson, open_lesson or like_lesson when the user's latest
+  message asks for that action. Never call them to make up for something you
+  can't do, and never save a lesson the user didn't choose.
 - Be concise. Answer the question asked; don't dump the full rubric unless
   you're ranking lessons.
 """.strip()
@@ -83,7 +87,7 @@ General:
 
 @dataclass
 class LickFinderAgentConfig:
-    model: str = "openai:gpt-5.4-mini"
+    model: str = "openai:gpt-5.4-nano"
     name: str = "lick_finder"
     instructions: str = AGENT_INSTRUCTIONS
 

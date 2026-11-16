@@ -9,12 +9,12 @@ from .paths import LEVELS_PATH
 
 load_dotenv()
 
-LEVEL_MODEL = "gpt-5.4-mini"
+LEVEL_MODEL = "gpt-5.4-nano"
 LEVELS ={"beginner", "intermediate", "advanced", "unclear"}
 
 # USD per million tokens (third-party trackers, March 2026; check OpenAI's page).
-INPUT_PRICE_PER_M = 0.75
-OUTPUT_PRICE_PER_M = 4.50
+INPUT_PRICE_PER_M = 0.20
+OUTPUT_PRICE_PER_M = 1.25
 
 client = OpenAI()
 usage = {"input": 0, "output": 0, "reasoning": 0}

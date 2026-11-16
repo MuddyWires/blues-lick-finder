@@ -11,7 +11,7 @@ from lick_finder.search import get_engine
 
 load_dotenv()
 
-QUESTION_MODEL = "gpt-5.4-mini"
+QUESTION_MODEL = "gpt-5.4-nano"
 QUESTIONS_PATH = DATA_DIR / "eval_questions.json"
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 200
 

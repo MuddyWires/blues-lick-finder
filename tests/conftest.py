@@ -11,8 +11,9 @@ from tests.cost_tracker import display_total_usage
 
 load_dotenv()
 
-# Override with e.g. LICK_TEST_MODEL=openai:gpt-5.4-nano to try a cheaper model.
-TEST_MODEL = os.getenv("LICK_TEST_MODEL", "openai:gpt-5.4-mini")
+# The tests use the same model as the agent. Override with e.g.
+# LICK_TEST_MODEL=openai:gpt-5.4-mini to compare against a bigger one.
+TEST_MODEL = os.getenv("LICK_TEST_MODEL", LickFinderAgentConfig.model)
 
 LESSONS = [
     {"video_id": "i6Ho6aubraw", "title": "Learn 10 Classic Blues Licks in the BB King Box!",
