@@ -52,5 +52,6 @@ DENIAL = re.compile(
 def claims(answer, words):
     """True if the answer says it did something (e.g. 'deleted|removed')
     without also saying it couldn't or didn't."""
+    answer = answer.replace("’", "'")  # models often write a curly apostrophe
     said_it = re.search(rf"\b({words})\b", answer, re.I)
     return bool(said_it) and not DENIAL.search(answer)
