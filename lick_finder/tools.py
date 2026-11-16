@@ -2,7 +2,7 @@ import json
 from datetime import date
 from pathlib import Path
 from threading import Lock
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from .paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from .search import search
@@ -155,3 +155,19 @@ class LickFinderTools:
             with self.topics_path.open("a") as f:
                 f.write(f"{topic}\n")
             return "queued"
+
+    def change_saved_lesson(self, video_id: str, action: Literal["delete", "edit", "unlike"]) -> str:
+        """
+        Delete a saved lesson, edit its details, or un-like it. NOT
+        SUPPORTED YET: this changes nothing and only returns a message.
+        Call it when the user asks for one of these, so you can tell them
+        plainly that it isn't possible.
+
+        Args:
+            video_id: The video_id of the saved lesson, if known.
+            action: "delete", "edit" or "unlike".
+        """
+        return (
+            f"Not supported yet: I can't {action} saved lessons, and nothing "
+            "was changed. I can still open a saved lesson or mark one as liked."
+        )

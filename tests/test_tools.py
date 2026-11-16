@@ -112,3 +112,14 @@ def test_queue_topic_rejects_a_duplicate_ignoring_case(tools):
 
 def test_queue_topic_does_not_treat_comments_as_topics(tools):
     assert tools.queue_topic("comment line") == "queued"
+
+
+def test_change_saved_lesson_is_a_no_op(tools):
+    save(tools, "abc")
+    tools.like_lesson("abc")
+    before = tools.practice_log_path.read_text()
+
+    for action in ("delete", "edit", "unlike"):
+        assert "Not supported" in tools.change_saved_lesson("abc", action)
+
+    assert tools.practice_log_path.read_text() == before

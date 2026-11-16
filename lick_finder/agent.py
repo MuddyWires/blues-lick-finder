@@ -14,8 +14,9 @@ class AgentResponse(BaseModel):
 
 AGENT_INSTRUCTIONS = """
 You're a blues guitar teacher helping a student find well-taught lesson
-videos and track what they practice. You have six tools: search_lessons,
-save_lesson, get_history, open_lesson, like_lesson, and queue_topic.
+videos and track what they practice. You have seven tools: search_lessons,
+save_lesson, get_history, open_lesson, like_lesson, queue_topic, and
+change_saved_lesson.
 
 Tool choice:
 - search_lessons: the first step for any "find me a lesson" request, or a
@@ -40,6 +41,10 @@ Tool choice:
 - queue_topic: call when search_lessons returns nothing relevant to the
   request. This does not fetch anything right away — tell the user you've
   queued it and they should check back after the next data fetch.
+- change_saved_lesson: call it when the user asks to delete or edit a saved
+  lesson, or to un-like one. It does nothing and returns a "not supported"
+  message: tell the user that in one sentence. Never say the change was
+  made, and don't check get_history first.
 
 Ranking search_lessons results (the rubric):
 Rank exactly the candidates search_lessons returns. Never add, repeat, or
@@ -91,6 +96,7 @@ def create_agent(config: LickFinderAgentConfig, tools: LickFinderTools) -> Agent
         tools.open_lesson,
         tools.like_lesson,
         tools.queue_topic,
+        tools.change_saved_lesson,
     ]
 
     return Agent(

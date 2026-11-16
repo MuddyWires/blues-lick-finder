@@ -6,7 +6,7 @@
 
 ## Summary
 
-Replace the fixed `rag()` pipeline with an agent loop that calls tools. The agent gets six small tools: one to search stored lessons, four to manage a personal practice history, and one to queue new topics for fetching. The smallest useful version uses three of them: `search_lessons`, `save_lesson`, and `get_history`.
+Replace the fixed `rag()` pipeline with an agent loop that calls tools. The agent gets six small tools: one to search stored lessons, four to manage a personal practice history, and one to queue new topics for fetching. A seventh, `change_saved_lesson`, is a stub that tells the user delete, edit and un-like aren't supported. The smallest useful version uses three of them: `search_lessons`, `save_lesson`, and `get_history`.
 
 ## Motivation
 
@@ -41,6 +41,7 @@ Users: only me for now, other people later.
 | 4 | `open_lesson` | Replays (revisits) a saved lesson and records the view. | `video_id` → URL and updated view count | Small; needed for g |
 | 5 | `like_lesson` | Marks a saved lesson as liked, usually after practicing it. | `video_id` → updated entry | Small; needed for h |
 | 6 | `queue_topic` | Adds a search topic to `data/topics.txt` when `search_lessons` finds nothing relevant. | `topic` → "queued" or "already queued" | Nice to have |
+| 7 | `change_saved_lesson` | A stub for requests we don't support: delete, edit or un-like a saved lesson. Changes nothing and returns a "not supported yet" message, so the agent can say so plainly instead of guessing. | `video_id`, `action` (delete / edit / unlike) → message | Small |
 
 ### How the agent handles "what should I practice today?" (g)
 
