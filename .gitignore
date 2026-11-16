@@ -6,4 +6,5 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 data/lessons.json
+data/levels.json
 notebooks/03-search-eval.ipynb
