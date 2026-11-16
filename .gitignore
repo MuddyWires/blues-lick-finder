@@ -9,4 +9,5 @@ data/lessons.json
 data/levels.json
 data/chunk_embeddings.npz
 data/eval_questions.json
+data/practice_log.json
 notebooks/03-search-eval.ipynb
