@@ -1,11 +1,9 @@
-import json
 import re
-from pathlib import Path
 
 from dotenv import load_dotenv
 
-from embeddings import best_chunk_per_video, build_indexes, retrieve
-from youtube_data import DATA_PATH
+from lick_finder.embeddings import best_chunk_per_video, retrieve
+from lick_finder.search import get_engine
 
 load_dotenv()
 
@@ -19,8 +17,8 @@ def norm(s):
     return re.sub(r"[^a-z0-9]+", "", s.lower())
 
 
-documents = json.loads(Path(DATA_PATH).read_text())
-chunks, index, vector_index = build_indexes(documents)
+engine = get_engine()
+documents, index, vector_index = engine.documents, engine.index, engine.vector_index
 with_transcript = {d["video_id"] for d in documents if d["transcript"]}
 
 # A video is relevant if the song name is in its title (and it has a transcript,

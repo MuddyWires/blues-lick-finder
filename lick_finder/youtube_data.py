@@ -1,8 +1,8 @@
 """Fetch blues lesson videos from YouTube: metadata, transcripts, and top comments.
 
 Searches are listed in data/topics.txt and results are cached to data/lessons.json.
-Run `uv run python notebooks/youtube_data.py` to fetch any new topics without
-opening Jupyter.
+Run `uv run python -m lick_finder.youtube_data` to fetch any new topics. The
+agent and notebook only read the cache and never fetch.
 """
 
 import json
@@ -14,6 +14,8 @@ import yt_dlp
 from dotenv import load_dotenv
 from youtube_transcript_api import IpBlocked, RequestBlocked, YouTubeTranscriptApi
 from youtube_transcript_api.proxies import GenericProxyConfig
+
+from .paths import DATA_PATH, TOPICS_PATH
 
 
 class RotatingProxyConfig(GenericProxyConfig):
@@ -29,9 +31,6 @@ class RotatingProxyConfig(GenericProxyConfig):
 
 
 load_dotenv()
-
-DATA_PATH = Path(__file__).parent.parent / "data" / "lessons.json"
-TOPICS_PATH = Path(__file__).parent.parent / "data" / "topics.txt"
 
 RESULTS_PER_TOPIC = 10
 COMMENTS_PER_VIDEO = 20
@@ -149,6 +148,11 @@ def fetch_comments_and_chapters(video_ids):
             }
 
     return extras_by_video
+
+
+def read_cache(path=DATA_PATH):
+    """The cached lessons, with no network calls (unlike load_lessons)."""
+    return json.loads(Path(path).read_text())
 
 
 def load_lessons(path=DATA_PATH):

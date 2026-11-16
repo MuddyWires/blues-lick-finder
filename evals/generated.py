@@ -1,18 +1,18 @@
 import json
 import random
 import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from embeddings import best_chunk_per_video, build_indexes, retrieve
-from youtube_data import DATA_PATH
+from lick_finder.embeddings import best_chunk_per_video, retrieve
+from lick_finder.paths import DATA_DIR
+from lick_finder.search import get_engine
 
 load_dotenv()
 
 QUESTION_MODEL = "gpt-5.4-mini"
-QUESTIONS_PATH = Path(DATA_PATH).parent / "eval_questions.json"
+QUESTIONS_PATH = DATA_DIR / "eval_questions.json"
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 200
 
 PROMPT = """Write ONE question a guitar student might type into a search box that
@@ -20,8 +20,8 @@ this lesson excerpt answers. Paraphrase: never reuse a phrase of 4+ words from
 the excerpt, and don't mention the title or channel. Reply with only the question."""
 
 client = OpenAI()
-documents = json.loads(Path(DATA_PATH).read_text())
-chunks, index, vector_index = build_indexes(documents)
+engine = get_engine()
+chunks, index, vector_index = engine.chunks, engine.index, engine.vector_index
 
 random.seed(42)
 sample = random.sample([c for c in chunks if len(c["content"]) > 1500], N)

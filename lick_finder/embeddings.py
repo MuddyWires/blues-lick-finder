@@ -5,10 +5,11 @@ import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from .paths import EMBEDDINGS_PATH
+
 load_dotenv()
 
 EMBED_MODEL = "text-embedding-3-small"
-CACHE_PATH = Path(__file__).resolve().parent.parent / "data" / "chunk_embeddings.npz"
 BATCH_SIZE = 100
 
 client = OpenAI()
@@ -30,7 +31,7 @@ def embed_texts(texts):
     return np.array(vectors, dtype=np.float32)
 
 
-def chunk_vectors(chunks, path=CACHE_PATH):
+def chunk_vectors(chunks, path=EMBEDDINGS_PATH):
     """One vector per chunk. Cached by hash of the chunk text, so rechunking
     only embeds chunks whose text is new."""
     cache = {}
@@ -83,19 +84,6 @@ def retrieve(index, vector_index, query, method="hybrid", num_results=50):
     return rrf([index.search(query, num_results=num_results),
                 vector_index.search(query, num_results)],
                weights=[tfidf_weight, 1.0])[:num_results]
-
-
-def build_indexes(documents):
-    """Chunks + TF-IDF index + vector index, for the eval scripts (no level field)."""
-    from gitsource import chunk_documents
-    from minsearch import Index
-
-    chunks = chunk_documents([d for d in documents if d["transcript"]],
-                             size=3000, step=1500, content_field_name="transcript")
-    index = Index(text_fields=["title", "description", "tags", "content"],
-                  keyword_fields=["video_id", "channel", "topic"])
-    index.fit(chunks)
-    return chunks, index, VectorIndex(chunks)
 
 
 def best_chunk_per_video(results, limit=5):

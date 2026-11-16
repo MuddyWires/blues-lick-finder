@@ -5,11 +5,12 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from .paths import LEVELS_PATH
+
 load_dotenv()
 
 LEVEL_MODEL = "gpt-5.4-mini"
-LEVELS_PATH = Path(__file__).resolve().parent.parent / "data" / "levels.json"
-LEVELS = {"beginner", "intermediate", "advanced", "unclear"}
+LEVELS ={"beginner", "intermediate", "advanced", "unclear"}
 
 # USD per million tokens (third-party trackers, March 2026; check OpenAI's page).
 INPUT_PRICE_PER_M = 0.75
@@ -81,11 +82,10 @@ def print_usage(labelled, total):
         print(f"Extrapolated to {total} videos: ${cost / labelled * total:.2f}")
 
 
-if __name__ == "__main__":  # dry run: python levels.py 5
-    # Read the cache directly: load_lessons() would fetch any new topics.
-    from youtube_data import DATA_PATH
+if __name__ == "__main__":  # dry run: python -m lick_finder.levels 5
+    from .youtube_data import read_cache
 
-    documents = json.loads(Path(DATA_PATH).read_text())
+    documents = read_cache()
     limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
     load_levels(documents, limit=limit)
     print_usage(limit or len(documents), len(documents))
