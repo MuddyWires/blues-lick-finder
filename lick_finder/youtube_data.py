@@ -33,6 +33,8 @@ class RotatingProxyConfig(GenericProxyConfig):
 load_dotenv()
 
 RESULTS_PER_TOPIC = 10
+CHANNEL_VIDEOS = 50  # newest videos fetched per channel topic
+MIN_CHANNEL_VIDEO_SEC = 120  # skips Shorts and trailers (channel topics only)
 COMMENTS_PER_VIDEO = 20
 TRANSCRIPT_DELAY_SEC = 6
 
@@ -86,22 +88,41 @@ def is_promotional(entry):
     return any(signal in text for signal in PROMO_SIGNALS)
 
 
+def topic_url(topic, results_per_topic):
+    """`channel:@handle` or `channel:UC...` is that channel's Videos tab;
+    anything else is a YouTube search."""
+    if not topic.startswith("channel:"):
+        return f"ytsearch{results_per_topic}:{topic}"
+    ref = topic.removeprefix("channel:").strip()
+    path = ref if ref.startswith("@") else f"channel/{ref}"
+    return f"https://www.youtube.com/{path}/videos"
+
+
 def fetch_lessons(topics, results_per_topic, skip_ids=()):
     lessons = {}
-    ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True, "ignoreerrors": True}
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "ignoreerrors": True,
+        "playlistend": CHANNEL_VIDEOS,
+    }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         for topic in topics:
             print(f"Searching: {topic}")
-            result = ydl.extract_info(f"ytsearch{results_per_topic}:{topic}", download=False)
+            result = ydl.extract_info(topic_url(topic, results_per_topic), download=False)
+            min_duration = MIN_CHANNEL_VIDEO_SEC if topic.startswith("channel:") else 0
 
-            for entry in result["entries"]:
+            for entry in (result or {}).get("entries") or []:
                 if entry is None:
                     continue  # yt-dlp returns None for entries it couldn't extract (e.g. removed videos)
                 video_id = entry["id"]
                 if video_id in lessons or video_id in skip_ids:
                     continue
                 if is_promotional(entry):
+                    continue
+                if (entry.get("duration") or 0) < min_duration:
                     continue
 
                 lessons[video_id] = {
