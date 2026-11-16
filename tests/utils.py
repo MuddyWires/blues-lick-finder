@@ -29,6 +29,29 @@ def collect_tools(messages):
     return tool_calls
 
 
+@dataclass
+class ToolReturn:
+    name: str
+    content: Any
+
+
+def collect_tool_returns(messages):
+    """What the tools returned, so a judge can check claims against it."""
+    returns = []
+
+    for m in messages:
+        for p in m.parts:
+            if p.part_kind != 'tool-return':
+                continue
+
+            if p.tool_name == 'final_result':
+                continue
+
+            returns.append(ToolReturn(p.tool_name, p.content))
+
+    return returns
+
+
 def get_model_name(agent):
     return f'{agent.model.system}:{agent.model.model_name}'
 
