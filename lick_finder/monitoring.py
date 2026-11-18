@@ -6,6 +6,8 @@ logfire CLI setup) or the LOGFIRE_TOKEN env var.
 
 import logfire
 
+TRACE_URL = "https://logfire-eu.pydantic.dev/muddy-wires/starter-project/"
+
 
 def setup_monitoring():
     logfire.configure(service_name="blues-lick-finder")
