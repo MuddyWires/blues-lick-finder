@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Literal, Optional
 from .lessons import get_store
 from .paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from .search import search
+from .tool_messages import CHANGE_UNSUPPORTED, SAVED_LESSON_NOT_FOUND
 
 
 class LickFinderTools:
@@ -163,18 +164,22 @@ class LickFinderTools:
                 f.write(f"{topic}\n")
             return "queued"
 
-    def change_saved_lesson(self, video_id: str, action: Literal["delete", "edit", "unlike"]) -> str:
+    def change_saved_lesson(
+        self,
+        video_id: str = "",
+        action: Literal["delete", "edit", "unlike"] = "delete",
+    ) -> str:
         """
         Delete a saved lesson, edit its details, or un-like it. NOT
-        SUPPORTED YET: this changes nothing and only returns a message.
-        Call it when the user asks for one of these, so you can tell them
-        plainly that it isn't possible.
+        SUPPORTED YET: this changes nothing. Call it when the user asks for
+        one of these, and follow its reply.
 
         Args:
-            video_id: The video_id of the saved lesson, if known.
+            video_id: The video_id of the saved lesson. Leave empty if that
+                lesson is not already in the conversation.
             action: "delete", "edit" or "unlike".
         """
-        return (
-            f"Not supported yet: I can't {action} saved lessons, and nothing "
-            "was changed. I can still open a saved lesson or mark one as liked."
-        )
+        saved = {e["video_id"] for e in self._read_log()}
+        if video_id not in saved:
+            return SAVED_LESSON_NOT_FOUND
+        return CHANGE_UNSUPPORTED[action]

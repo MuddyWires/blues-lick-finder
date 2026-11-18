@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 import dotenv
 import logfire
 import streamlit as st
+from pydantic_ai.exceptions import UsageLimitExceeded
 from pydantic_ai.messages import ToolCallPart
 
 # `streamlit run` only puts this folder on the path, so add the project root.
@@ -24,7 +25,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 dotenv.load_dotenv()
 
-from lick_finder.agent import AgentResponse, LickFinderAgentConfig, create_agent  # noqa: E402
+from lick_finder.agent import (  # noqa: E402
+    STUCK_MESSAGE,
+    USAGE_LIMITS,
+    AgentResponse,
+    LickFinderAgentConfig,
+    create_agent,
+)
 from lick_finder.monitoring import SERVICE_NAME, TRACE_URL, setup_monitoring  # noqa: E402
 from lick_finder.tools import LickFinderTools  # noqa: E402
 from lick_finder.turn import format_summary, turn_summary  # noqa: E402
@@ -114,9 +121,21 @@ if question := st.chat_input("Ask about a blues lick or lesson…"):
             # loop each time, so a cached agent's HTTP client can break.
             agent = create_agent(config, tools)
             with logfire.span("chat turn", session_id=ss.session_id) as span:
-                result = asyncio.run(
-                    agent.run(question, message_history=ss.history, output_type=AgentResponse)
-                )
+                try:
+                    result = asyncio.run(
+                        agent.run(
+                            question,
+                            message_history=ss.history,
+                            output_type=AgentResponse,
+                            usage_limits=USAGE_LIMITS,
+                        )
+                    )
+                except UsageLimitExceeded:
+                    result = None
+                if result is None:
+                    span.set_attribute("hit_request_limit", True)
+                    st.write(STUCK_MESSAGE)
+                    st.stop()
                 s = turn_summary(result, config.model)
                 span.set_attribute("cost_usd", s["cost"] or 0.0)
                 trace_id = format(span.get_span_context().trace_id, "032x")

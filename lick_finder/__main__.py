@@ -30,6 +30,8 @@ async def chat():
                 continue
 
             result = await runner.run(question, message_history=history)
+            if result is None:  # hit the request limit; the runner printed why
+                continue
             capture_usage(config.model, result)
             history = result.all_messages()
             print(f"\n[{format_summary(turn_summary(result, config.model))}]")
