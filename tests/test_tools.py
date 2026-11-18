@@ -170,3 +170,14 @@ def test_every_status_has_a_fixed_message_without_placeholders():
     assert set(MESSAGES) == set(get_args(Status))
     assert all("{" not in m for m in MESSAGES.values())
     assert ToolResult.of("queued").message == MESSAGES["queued"]
+
+
+@pytest.mark.parametrize("topic", ["channel:@somebody", "two\nlines", "# comment", ""])
+def test_queue_topic_rejects_unsafe_topics_with_a_fixed_reply(tools, topic):
+    before = tools.topics_path.read_text()
+
+    result = tools.queue_topic(topic)
+
+    assert (result.status, result.next_step) == ("invalid_topic", "stop")
+    assert topic.strip() not in result.message or topic.strip() == ""
+    assert tools.topics_path.read_text() == before

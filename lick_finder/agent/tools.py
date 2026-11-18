@@ -1,12 +1,14 @@
 from pathlib import Path
-from threading import Lock
 from typing import Any, Dict, List, Literal, Optional
 
 from ..business import (
+    InvalidTopic,
     LessonAlreadySaved,
     LessonNotInCatalog,
     LessonNotSaved,
     PracticeLog,
+    TopicAlreadyQueued,
+    TopicQueue,
 )
 from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from ..integrations.search import search
@@ -28,8 +30,8 @@ class LickFinderTools:
         self.practice_log_path = practice_log_path
         self.topics_path = topics_path
         self._search = search_fn
-        self._lock = Lock()  # guards topics.txt
         self.log = PracticeLog(practice_log_path, catalog=store)
+        self.topics = TopicQueue(topics_path)
 
     def search_lessons(self, query: str, level: Optional[str] = None) -> List[Dict[str, Any]]:
         """
@@ -107,17 +109,13 @@ class LickFinderTools:
         Args:
             topic: The topic to queue, phrased like a YouTube search.
         """
-        with self._lock:
-            existing = [
-                line.strip() for line in self.topics_path.read_text().splitlines()
-                if line.strip() and not line.strip().startswith("#")
-            ]
-            if topic.strip().lower() in (line.lower() for line in existing):
-                return ToolResult.of("already_queued")
-
-            with self.topics_path.open("a") as f:
-                f.write(f"{topic}\n")
-            return ToolResult.of("queued")
+        try:
+            self.topics.add(topic)
+        except InvalidTopic:
+            return ToolResult.of("invalid_topic", next_step="stop")
+        except TopicAlreadyQueued:
+            return ToolResult.of("already_queued")
+        return ToolResult.of("queued")
 
     def change_saved_lesson(
         self,

@@ -18,6 +18,10 @@ MESSAGES = {
     ),
     "queued": "Topic queued for the next data fetch. Tell the user to check back after it.",
     "already_queued": "That topic is already queued. Tell the user.",
+    "invalid_topic": (
+        "That topic could not be queued. Tell the user in one sentence and "
+        "do not retry with another topic."
+    ),
     "unsupported": (
         "That change is not supported. Nothing was changed. Tell the user in "
         "one sentence and call no more tools."

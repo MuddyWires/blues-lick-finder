@@ -1,7 +1,7 @@
 # YouTube searches used to build data/lessons.json, one per line.
 # A line `channel:@handle` (or `channel:UC...`) fetches that channel's newest videos instead.
 # Lines starting with # and blank lines are ignored.
-# Add a line and run `uv run python -m lick_finder.youtube_data` to fetch it.
+# Add a line and run `uv run python -m lick_finder.integrations.youtube_data` to fetch it.
 
 # Starter topics
 BB King box blues lick lesson

@@ -11,5 +11,9 @@ from .practice_log import (
     LessonNotSaved,
     PracticeLog,
 )
+from .topic_queue import InvalidTopic, TopicAlreadyQueued, TopicQueue
 
-__all__ = ["LessonAlreadySaved", "LessonNotInCatalog", "LessonNotSaved", "PracticeLog"]
+__all__ = [
+    "InvalidTopic", "LessonAlreadySaved", "LessonNotInCatalog", "LessonNotSaved",
+    "PracticeLog", "TopicAlreadyQueued", "TopicQueue",
+]
