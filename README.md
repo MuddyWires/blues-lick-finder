@@ -64,6 +64,18 @@ project's `LOGFIRE_PROJECT_URL`, plus a write token (`uv run logfire auth`, or
 - Streamlit app: `uv run --group app streamlit run streamlit_app/app.py`
 - Usage report menu: `uv run python -m reports.report_cli`
 
+## Code layout
+
+```
+lick_finder/
+  agent/          what the model sees: prompt, tools, tool messages
+  business/       the operations (practice log, lesson catalog); no LLM knowledge
+  integrations/   YouTube, OpenAI embeddings, labelling, search index
+```
+
+Dependencies only point one way: `agent` calls `business`, which calls
+`integrations`. `tests/test_architecture.py` enforces it.
+
 ## Notebooks
 
 - `notebooks/01-setup.ipynb` - smoke test that confirms your environment works

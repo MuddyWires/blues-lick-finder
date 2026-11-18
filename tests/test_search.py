@@ -1,5 +1,5 @@
-from lick_finder.embeddings import best_chunk_per_video, rrf
-from lick_finder.search import filter_level
+from lick_finder.integrations.embeddings import best_chunk_per_video, rrf
+from lick_finder.integrations.search import filter_level
 
 
 def chunk(video_id, start=0, level="intermediate"):

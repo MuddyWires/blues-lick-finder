@@ -30,10 +30,10 @@ from lick_finder.agent import (  # noqa: E402
     USAGE_LIMITS,
     AgentResponse,
     LickFinderAgentConfig,
+    LickFinderTools,
     create_agent,
 )
 from lick_finder.monitoring import SERVICE_NAME, TRACE_URL, setup_monitoring  # noqa: E402
-from lick_finder.tools import LickFinderTools  # noqa: E402
 from lick_finder.turn import format_summary, turn_summary  # noqa: E402
 
 st.set_page_config(page_title="Blues Lick Finder", page_icon="🎸")

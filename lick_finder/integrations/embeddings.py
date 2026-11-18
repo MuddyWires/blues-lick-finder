@@ -5,7 +5,7 @@ import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from .paths import EMBEDDINGS_PATH
+from ..paths import EMBEDDINGS_PATH
 
 load_dotenv()
 

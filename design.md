@@ -60,7 +60,7 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 - **Replay goes through a tool.** Opening a URL directly would work, but the agent could not record the view, and (g) depends on views.
 - **No `user_id` yet.** History lives in one file (e.g. `data/practice_log.json`). When other users arrive, `user_id` becomes one extra input on tools 2–5.
 - **Search is vector-based by default.** Chunks are embedded with `text-embedding-3-small` (cached in `data/chunk_embeddings.npz`). See "Retrieval" below for the eval.
-- **Starting the agent never fetches from YouTube.** It reads the cache only. Fetching is the separate command `python -m lick_finder.youtube_data`, so the "queue, don't fetch live" decision also holds at startup.
+- **Starting the agent never fetches from YouTube.** It reads the cache only. Fetching is the separate command `python -m lick_finder.integrations.youtube_data`, so the "queue, don't fetch live" decision also holds at startup.
 
 ## Alternatives rejected
 
@@ -73,7 +73,7 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 
 ## Data prerequisites
 
-`level` was the one feature that needed data the fetch code (`lick_finder/youtube_data.py`) didn't store. It is now done:
+`level` was the one feature that needed data the fetch code (`lick_finder/integrations/youtube_data.py`) didn't store. It is now done:
 
 | Data | Needed for | Result |
 |---|---|---|
@@ -111,7 +111,7 @@ tests/         tools and search helpers; no OpenAI calls
 ```
 
 - Chat with the agent: `uv run python -m lick_finder`
-- Fetch new topics from `data/topics.txt`: `uv run python -m lick_finder.youtube_data`
+- Fetch new topics from `data/topics.txt`: `uv run python -m lick_finder.integrations.youtube_data`
 - Run the evals: `uv run python -m evals.generated 200`, `uv run python -m evals.named`
 - Tests: `uv run pytest`
 

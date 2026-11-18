@@ -4,8 +4,8 @@ import pytest
 from dotenv import load_dotenv
 
 from lick_finder.agent import LickFinderAgentConfig, create_agent
-from lick_finder.lessons import LessonStore
-from lick_finder.tools import LickFinderTools
+from lick_finder.business.lessons import LessonStore
+from lick_finder.agent import LickFinderTools
 
 from tests.cost_tracker import display_total_usage
 

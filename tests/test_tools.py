@@ -1,8 +1,8 @@
 import pytest
 
-from lick_finder.lessons import LessonStore
-from lick_finder.tool_messages import CHANGE_UNSUPPORTED, SAVED_LESSON_NOT_FOUND
-from lick_finder.tools import LickFinderTools
+from lick_finder.business.lessons import LessonStore
+from lick_finder.agent.tool_messages import CHANGE_UNSUPPORTED, SAVED_LESSON_NOT_FOUND
+from lick_finder.agent import LickFinderTools
 
 KNOWN_IDS = ["abc", "a", "b", "c", "old", "new"]
 
@@ -73,10 +73,10 @@ def test_get_history_liked_only_and_limit(tools):
 def test_get_history_is_newest_first(tools):
     save(tools, "old")
     save(tools, "new")
-    entries = tools._read_log()
+    entries = tools.log._read()
     entries[0]["saved_date"] = "2026-01-01"
     entries[1]["saved_date"] = "2026-06-01"
-    tools._write_log(entries)
+    tools.log._write(entries)
 
     assert [e["video_id"] for e in tools.get_history()] == ["new", "old"]
 

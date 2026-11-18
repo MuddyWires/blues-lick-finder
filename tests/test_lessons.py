@@ -1,4 +1,4 @@
-from lick_finder.lessons import LessonStore
+from lick_finder.business.lessons import LessonStore
 from lick_finder.models import LessonPick
 
 DOCS = [

@@ -3,8 +3,8 @@ They call real models, so they run only with `uv run pytest --llm`."""
 
 import pytest
 
-from lick_finder.lessons import LessonStore
-from lick_finder.tools import LickFinderTools
+from lick_finder.business.lessons import LessonStore
+from lick_finder.agent import LickFinderTools
 
 from tests.judge import assert_criteria, judge
 from tests.utils import run_agent_test

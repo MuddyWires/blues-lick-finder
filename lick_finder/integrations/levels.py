@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from .paths import LEVELS_PATH
+from ..paths import LEVELS_PATH
 
 load_dotenv()
 
@@ -88,7 +88,7 @@ def print_usage(labelled, total):
         print(f"Extrapolated to {total} videos: ${cost / labelled * total:.2f}")
 
 
-if __name__ == "__main__":  # dry run: python -m lick_finder.levels 5
+if __name__ == "__main__":  # dry run: python -m lick_finder.integrations.levels 5
     from .youtube_data import read_cache
 
     documents = read_cache()

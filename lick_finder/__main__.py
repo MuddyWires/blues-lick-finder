@@ -4,10 +4,9 @@ import asyncio
 
 import logfire
 
-from .agent import AgentStreamRunner, LickFinderAgentConfig, create_agent
+from .agent import AgentStreamRunner, LickFinderAgentConfig, LickFinderTools, create_agent
 from .cost import capture_usage, display_total_usage, total_cost
 from .monitoring import TRACE_URL, setup_monitoring
-from .tools import LickFinderTools
 from .turn import format_summary, turn_summary
 
 

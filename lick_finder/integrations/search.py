@@ -3,7 +3,7 @@
 The indexes are built lazily on first use, not at import time. Building them
 labels any unlabelled lessons and embeds any new chunks (small OpenAI calls,
 cached on disk), but never fetches from YouTube: that is
-`python -m lick_finder.youtube_data`.
+`python -m lick_finder.integrations.youtube_data`.
 """
 
 from dataclasses import dataclass

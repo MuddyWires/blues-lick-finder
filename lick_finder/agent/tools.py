@@ -1,12 +1,15 @@
-import json
-from datetime import date
 from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Literal, Optional
 
-from .lessons import get_store
-from .paths import PRACTICE_LOG_PATH, TOPICS_PATH
-from .search import search
+from ..business import (
+    LessonAlreadySaved,
+    LessonNotInCatalog,
+    LessonNotSaved,
+    PracticeLog,
+)
+from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
+from ..integrations.search import search
 from .tool_messages import CHANGE_UNSUPPORTED, SAVED_LESSON_NOT_FOUND
 
 
@@ -25,16 +28,8 @@ class LickFinderTools:
         self.practice_log_path = practice_log_path
         self.topics_path = topics_path
         self._search = search_fn
-        self._store = store
-        self._lock = Lock()
-
-    def _read_log(self):
-        if self.practice_log_path.exists():
-            return json.loads(self.practice_log_path.read_text())
-        return []
-
-    def _write_log(self, entries):
-        self.practice_log_path.write_text(json.dumps(entries, indent=2))
+        self._lock = Lock()  # guards topics.txt
+        self.log = PracticeLog(practice_log_path, catalog=store)
 
     def search_lessons(self, query: str, level: Optional[str] = None) -> List[Dict[str, Any]]:
         """
@@ -62,30 +57,13 @@ class LickFinderTools:
             key: The musical key, or "" if none is named.
             level: Your estimate of the lesson's level.
         """
-        if video_id not in (self._store or get_store()):
+        try:
+            return self.log.add(video_id, song, technique, key, level)
+        except LessonNotInCatalog:
             return (f"video {video_id} is not in the lesson data; use a "
                     "video_id from the search results")
-
-        with self._lock:
-            entries = self._read_log()
-            if any(e["video_id"] == video_id for e in entries):
-                return "already saved"
-
-            entry = {
-                "video_id": video_id,
-                "url": f"https://www.youtube.com/watch?v={video_id}",
-                "song": song,
-                "technique": technique,
-                "key": key,
-                "level": level,
-                "saved_date": date.today().isoformat(),
-                "liked": False,
-                "view_count": 0,
-                "last_viewed": None,
-            }
-            entries.append(entry)
-            self._write_log(entries)
-            return entry
+        except LessonAlreadySaved:
+            return "already saved"
 
     def get_history(self, filter: Optional[str] = None, liked_only: bool = False, limit: int = 10):
         """
@@ -98,20 +76,7 @@ class LickFinderTools:
             liked_only: Only return liked lessons.
             limit: Max entries to return.
         """
-        entries = self._read_log()
-
-        if liked_only:
-            entries = [e for e in entries if e["liked"]]
-
-        if filter:
-            needle = filter.lower()
-            entries = [
-                e for e in entries
-                if needle in " ".join(str(e.get(f, "")) for f in ("song", "technique", "key")).lower()
-            ]
-
-        entries.sort(key=lambda e: e["saved_date"], reverse=True)
-        return entries[:limit]
+        return self.log.list(filter, liked_only, limit)
 
     def open_lesson(self, video_id: str):
         """Replay a saved lesson and record the view.
@@ -119,15 +84,11 @@ class LickFinderTools:
         Args:
             video_id: The video_id of the saved lesson to replay.
         """
-        with self._lock:
-            entries = self._read_log()
-            for entry in entries:
-                if entry["video_id"] == video_id:
-                    entry["view_count"] += 1
-                    entry["last_viewed"] = date.today().isoformat()
-                    self._write_log(entries)
-                    return {"url": entry["url"], "view_count": entry["view_count"]}
+        try:
+            entry = self.log.record_view(video_id)
+        except LessonNotSaved:
             return f"video {video_id} is not in the practice history"
+        return {"url": entry["url"], "view_count": entry["view_count"]}
 
     def like_lesson(self, video_id: str):
         """Mark a saved lesson as liked.
@@ -135,13 +96,9 @@ class LickFinderTools:
         Args:
             video_id: The video_id of the saved lesson to like.
         """
-        with self._lock:
-            entries = self._read_log()
-            for entry in entries:
-                if entry["video_id"] == video_id:
-                    entry["liked"] = True
-                    self._write_log(entries)
-                    return entry
+        try:
+            return self.log.like(video_id)
+        except LessonNotSaved:
             return f"video {video_id} is not in the practice history"
 
     def queue_topic(self, topic: str) -> str:
@@ -179,7 +136,6 @@ class LickFinderTools:
                 lesson is not already in the conversation.
             action: "delete", "edit" or "unlike".
         """
-        saved = {e["video_id"] for e in self._read_log()}
-        if video_id not in saved:
+        if not self.log.has(video_id):
             return SAVED_LESSON_NOT_FOUND
         return CHANGE_UNSUPPORTED[action]

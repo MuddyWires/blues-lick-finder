@@ -1,7 +1,7 @@
 """Fetch blues lesson videos from YouTube: metadata, transcripts, and top comments.
 
 Searches are listed in data/topics.txt and results are cached to data/lessons.json.
-Run `uv run python -m lick_finder.youtube_data` to fetch any new topics. The
+Run `uv run python -m lick_finder.integrations.youtube_data` to fetch any new topics. The
 agent and notebook only read the cache and never fetch.
 """
 
@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from youtube_transcript_api import IpBlocked, RequestBlocked, YouTubeTranscriptApi
 from youtube_transcript_api.proxies import GenericProxyConfig
 
-from .paths import DATA_PATH, TOPICS_PATH
+from ..paths import DATA_PATH, TOPICS_PATH
 
 
 class RotatingProxyConfig(GenericProxyConfig):

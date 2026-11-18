@@ -1,4 +1,4 @@
-from lick_finder.youtube_data import load_topics, topic_url
+from lick_finder.integrations.youtube_data import load_topics, topic_url
 
 
 def test_a_plain_topic_is_a_youtube_search():

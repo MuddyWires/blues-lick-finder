@@ -2,8 +2,8 @@ import re
 
 from dotenv import load_dotenv
 
-from lick_finder.embeddings import best_chunk_per_video, retrieve
-from lick_finder.search import get_engine
+from lick_finder.integrations.embeddings import best_chunk_per_video, retrieve
+from lick_finder.integrations.search import get_engine
 
 load_dotenv()
 
