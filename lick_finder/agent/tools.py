@@ -1,6 +1,9 @@
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
+from pydantic_ai import RunContext
+from pydantic_ai.messages import ModelResponse, ToolCallPart
+
 from ..business import (
     InvalidTopic,
     LessonAlreadySaved,
@@ -13,6 +16,28 @@ from ..business import (
 from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from ..integrations.search import search
 from .results import ToolResult
+
+# Policy for the agent, not a business rule: one question may search this many
+# times. Nano tends to keep re-searching when results look off-topic.
+MAX_SEARCHES_PER_QUESTION = 2
+
+
+def searches_this_run(ctx: RunContext) -> int:
+    """How many search_lessons calls came before this one in this question.
+
+    Counts earlier responses and earlier calls in the same response (the model
+    may request several at once), but not this call, later calls, or earlier
+    questions in the conversation."""
+    count = 0
+    for m in ctx.messages:
+        if not (isinstance(m, ModelResponse) and m.run_id == ctx.run_id):
+            continue
+        for p in m.parts:
+            if isinstance(p, ToolCallPart) and p.tool_name == "search_lessons":
+                if p.tool_call_id == ctx.tool_call_id:
+                    return count
+                count += 1
+    return count
 
 
 class LickFinderTools:
@@ -33,7 +58,9 @@ class LickFinderTools:
         self.log = PracticeLog(practice_log_path, catalog=store)
         self.topics = TopicQueue(topics_path)
 
-    def search_lessons(self, query: str, level: Optional[str] = None) -> List[Dict[str, Any]]:
+    def search_lessons(
+        self, ctx: RunContext, query: str, level: Optional[str] = None
+    ) -> List[Dict[str, Any]] | ToolResult:
         """
         Search the stored blues lesson videos. The first step for any "find
         me a lesson" request.
@@ -44,6 +71,8 @@ class LickFinderTools:
                 unless the user asked for a level. Lessons whose level is
                 unclear are still returned.
         """
+        if searches_this_run(ctx) >= MAX_SEARCHES_PER_QUESTION:
+            return ToolResult.of("search_limit", next_step="stop")
         return self._search(query, level=level)
 
     def save_lesson(self, video_id: str, song: str, technique: str, key: str, level: str) -> ToolResult:

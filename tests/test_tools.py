@@ -1,7 +1,11 @@
+from types import SimpleNamespace
+
 import pytest
+from pydantic_ai.messages import ModelResponse, ToolCallPart
 
 from lick_finder.business.lessons import LessonStore
 from lick_finder.agent.results import ToolResult
+from lick_finder.agent.tools import MAX_SEARCHES_PER_QUESTION, searches_this_run
 from lick_finder.agent import LickFinderTools
 
 KNOWN_IDS = ["abc", "a", "b", "c", "old", "new"]
@@ -23,11 +27,68 @@ def save(tools, video_id, song="Hide Away", technique="intro", key="E", level="b
     return tools.save_lesson(video_id, song, technique, key, level)
 
 
+def fake_ctx(searches_this_run=0, searches_in_other_runs=0):
+    """A stand-in RunContext: just the fields the search guard reads."""
+    def call(run_id, n):
+        return ModelResponse(
+            parts=[ToolCallPart("search_lessons", {"query": "q"}, tool_call_id=f"{run_id}-{n}")],
+            run_id=run_id,
+        )
+    messages = [call("other", i) for i in range(searches_in_other_runs)]
+    messages += [call("now", i) for i in range(searches_this_run)]
+    return SimpleNamespace(messages=messages, run_id="now", tool_call_id="current")
+
+
 def test_search_lessons_passes_query_and_level_through(tools):
-    assert tools.search_lessons("hide away", level="beginner") == [
+    assert tools.search_lessons(fake_ctx(), "hide away", level="beginner") == [
         {"query": "hide away", "level": "beginner"}
     ]
-    assert tools.search_lessons("hide away") == [{"query": "hide away", "level": None}]
+    assert tools.search_lessons(fake_ctx(), "hide away") == [{"query": "hide away", "level": None}]
+
+
+def test_search_is_refused_after_the_limit_for_this_question(tools):
+    ctx = fake_ctx(searches_this_run=MAX_SEARCHES_PER_QUESTION)
+
+    result = tools.search_lessons(ctx, "jazz chords")
+
+    assert (result.status, result.next_step) == ("search_limit", "stop")
+
+
+def test_searches_just_under_the_limit_still_run(tools):
+    ctx = fake_ctx(searches_this_run=MAX_SEARCHES_PER_QUESTION - 1)
+
+    assert tools.search_lessons(ctx, "jazz chords") == [{"query": "jazz chords", "level": None}]
+
+
+def test_searches_from_earlier_questions_do_not_count(tools):
+    ctx = fake_ctx(searches_in_other_runs=10)
+
+    assert searches_this_run(ctx) == 0
+    assert tools.search_lessons(ctx, "hide away")
+
+
+def parallel_ctx(position, size=3):
+    """One response asking for `size` searches at once; the current call is the
+    `position`-th (0-based)."""
+    parts = [ToolCallPart("search_lessons", {"query": "q"}, tool_call_id=f"call-{i}") for i in range(size)]
+    return SimpleNamespace(
+        messages=[ModelResponse(parts=parts, run_id="now")],
+        run_id="now",
+        tool_call_id=f"call-{position}",
+    )
+
+
+@pytest.mark.parametrize("position", [0, 1, 2])
+def test_a_search_counts_only_the_calls_before_it_in_the_same_response(position):
+    assert searches_this_run(parallel_ctx(position)) == position
+
+
+def test_only_the_first_searches_run_when_several_are_requested_at_once(tools):
+    results = [tools.search_lessons(parallel_ctx(i), "q") for i in range(3)]
+
+    ran = [not isinstance(r, ToolResult) for r in results]
+    assert ran == [True, True, False]   # MAX_SEARCHES_PER_QUESTION is 2
+
 
 
 def test_save_lesson_stores_an_entry(tools):

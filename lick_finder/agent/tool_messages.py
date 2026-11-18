@@ -22,6 +22,11 @@ MESSAGES = {
         "That topic could not be queued. Tell the user in one sentence and "
         "do not retry with another topic."
     ),
+    "search_limit": (
+        "Search limit reached for this question. Do not search again. Answer "
+        "from the results you already have, or tell the user nothing relevant "
+        "was found."
+    ),
     "unsupported": (
         "That change is not supported. Nothing was changed. Tell the user in "
         "one sentence and call no more tools."

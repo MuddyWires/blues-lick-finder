@@ -31,6 +31,8 @@ Tool choice:
   history. If the user asked for a specific level, pass it as `level`.
   Every result has a stored `level`; use it for ranking and for
   save_lesson's `level`. Say "unclear" when it is, don't guess.
+  Call it once per request. Search again only if the results were empty
+  or off-topic, and never repeat a query you already ran.
 - save_lesson: call ONLY when the user chooses a specific lesson (e.g.
   "I'll practice this one", "save the first one"). Never save automatically
   just because you recommended it in a search. Fill `song`, `technique`,
