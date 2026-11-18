@@ -9,13 +9,18 @@ read from your own Logfire project.
 
 import asyncio
 import os
+import sys
 import uuid
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import dotenv
 import logfire
 import streamlit as st
 from pydantic_ai.messages import ToolCallPart
+
+# `streamlit run` only puts this folder on the path, so add the project root.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 dotenv.load_dotenv()
 
