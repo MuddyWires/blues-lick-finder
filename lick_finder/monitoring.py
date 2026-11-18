@@ -12,8 +12,9 @@ SERVICE_NAME = "blues-lick-finder"
 
 # Your own Logfire project page, e.g. https://logfire-eu.pydantic.dev/<org>/<project>/
 # Set LOGFIRE_PROJECT_URL in .env; the default is the author's project.
-TRACE_URL = os.getenv(
-    "LOGFIRE_PROJECT_URL", "https://logfire-eu.pydantic.dev/muddy-wires/starter-project/"
+TRACE_URL = (
+    os.getenv("LOGFIRE_PROJECT_URL")  # blank (as in .env.example) falls back
+    or "https://logfire-eu.pydantic.dev/muddy-wires/starter-project/"
 ).rstrip("/") + "/"
 
 
