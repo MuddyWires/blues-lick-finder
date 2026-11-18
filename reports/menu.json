@@ -1,0 +1,41 @@
+{
+  "days": 30,
+  "service": "blues-lick-finder",
+  "items": [
+    {
+      "key": "1", "label": "Recent sessions",
+      "queries": [{
+        "sql": "select trace_id, start_timestamp, cast(attributes->>'cost_usd' as double) as cost from records where service_name = '$SERVICE' and span_name = 'chat session' order by start_timestamp desc limit 10",
+        "row": "{start_timestamp:.19}  ${cost:.4f}  {trace_id}"
+      }]
+    },
+    {
+      "key": "2", "label": "Cost summary",
+      "queries": [
+        {
+          "sql": "select count(*) as n, sum(cast(attributes->>'cost_usd' as double)) as cost from records where service_name = '$SERVICE' and span_name = 'chat session'",
+          "row": "{n} sessions, ${cost:.4f} total"
+        },
+        {
+          "sql": "select sum(cast(attributes->>'gen_ai.usage.input_tokens' as bigint)) as i, sum(cast(attributes->>'gen_ai.usage.output_tokens' as bigint)) as o from records where service_name = '$SERVICE' and span_name like 'chat gpt%'",
+          "row": "tokens: {i} in / {o} out"
+        }
+      ]
+    },
+    {
+      "key": "3", "label": "Tool usage",
+      "queries": [{
+        "sql": "select span_name as tool, count(*) as n from records where service_name = '$SERVICE' and span_name like 'execute_tool%' group by span_name order by n desc",
+        "row": "{n:>5}  {tool}"
+      }]
+    },
+    {
+      "key": "4", "label": "Biggest LLM calls",
+      "queries": [{
+        "sql": "select trace_id, cast(attributes->>'gen_ai.usage.input_tokens' as bigint) as i, cast(attributes->>'gen_ai.usage.output_tokens' as bigint) as o from records where service_name = '$SERVICE' and span_name like 'chat gpt%' order by i desc limit 5",
+        "row": "{i:>7} in / {o:>5} out  {trace_id}"
+      }]
+    },
+    { "key": "5", "label": "Trace link", "action": "trace_link" }
+  ]
+}
