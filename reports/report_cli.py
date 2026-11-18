@@ -14,8 +14,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
-BASE = "https://logfire-eu.pydantic.dev"
-PROJECT_URL = f"{BASE}/muddy-wires/starter-project/"
+from urllib.parse import urlsplit
+
+from lick_finder.monitoring import TRACE_URL as PROJECT_URL
+
+_u = urlsplit(PROJECT_URL)
+BASE = f"{_u.scheme}://{_u.netloc}"
 MENU_PATH = Path(__file__).parent / "menu.json"
 
 TRACE_ID = re.compile(r"[0-9a-f]{32}")

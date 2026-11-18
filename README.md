@@ -52,6 +52,18 @@ Medium. The required part is the agent tool-use loop and the prompt and rubric q
 
        uv run jupyter notebook
 
+## Chat, monitoring and reports
+
+Each user runs their own copy with their own keys. Nothing is shared.
+
+Put these in your `.env`: `OPENAI_API_KEY`, and for monitoring your own Logfire
+project's `LOGFIRE_PROJECT_URL`, plus a write token (`uv run logfire auth`, or
+`LOGFIRE_TOKEN`) and a read token (`LOGFIRE_READ_TOKEN`).
+
+- CLI chat: `uv run python -m lick_finder`
+- Streamlit app: `uv run --group app streamlit run streamlit_app/app.py`
+- Usage report menu: `uv run python -m reports.report_cli`
+
 ## Notebooks
 
 - `notebooks/01-setup.ipynb` - smoke test that confirms your environment works

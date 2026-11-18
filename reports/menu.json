@@ -5,7 +5,7 @@
     {
       "key": "1", "label": "Recent sessions",
       "queries": [{
-        "sql": "select trace_id, start_timestamp, cast(attributes->>'cost_usd' as double) as cost from records where service_name = '$SERVICE' and span_name = 'chat session' order by start_timestamp desc limit 10",
+        "sql": "select trace_id, start_timestamp, cast(attributes->>'cost_usd' as double) as cost from records where service_name = '$SERVICE' and span_name in ('chat session', 'chat turn') order by start_timestamp desc limit 10",
         "row": "{start_timestamp:.19}  ${cost:.4f}  {trace_id}"
       }]
     },
@@ -13,7 +13,7 @@
       "key": "2", "label": "Cost summary",
       "queries": [
         {
-          "sql": "select count(*) as n, sum(cast(attributes->>'cost_usd' as double)) as cost from records where service_name = '$SERVICE' and span_name = 'chat session'",
+          "sql": "select count(*) as n, sum(cast(attributes->>'cost_usd' as double)) as cost from records where service_name = '$SERVICE' and span_name in ('chat session', 'chat turn')",
           "row": "{n} sessions, ${cost:.4f} total"
         },
         {

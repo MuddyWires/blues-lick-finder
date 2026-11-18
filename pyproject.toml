@@ -18,6 +18,9 @@ dependencies = [
 ]
 
 [dependency-groups]
+app = [
+    "streamlit>=1.40",
+]
 dev = [
     "jupyter>=1.1.1",
     "pytest>=8.0",
