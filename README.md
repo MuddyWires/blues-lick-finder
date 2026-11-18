@@ -76,6 +76,21 @@ lick_finder/
 Dependencies only point one way: `agent` calls `business`, which calls
 `integrations`. `tests/test_architecture.py` enforces it.
 
+## Running tests
+
+Free tests (no model, no network) run by default. Tests that call a real model
+need `--llm` and cost a few cents.
+
+```
+uv run pytest                      # all free tests
+uv run pytest tests/unit/business  # one category by folder
+uv run pytest -m agent             # or by marker
+uv run pytest tests/llm --llm      # real-model behaviour tests
+```
+
+Categories: `business`, `agent`, `integrations`, `reports`, `models`,
+`architecture`, `helpers`, and `llm`.
+
 ## Notebooks
 
 - `notebooks/01-setup.ipynb` - smoke test that confirms your environment works

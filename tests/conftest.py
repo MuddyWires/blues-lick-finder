@@ -7,7 +7,7 @@ from lick_finder.agent import LickFinderAgentConfig, create_agent
 from lick_finder.business.lessons import LessonStore
 from lick_finder.agent import LickFinderTools
 
-from tests.cost_tracker import display_total_usage
+from tests.llm.cost_tracker import display_total_usage
 
 load_dotenv()
 
@@ -29,11 +29,36 @@ def pytest_addoption(parser):
                      help="also run tests that call a real model (costs money)")
 
 
+# Category markers are added from each test's folder, so `pytest -m business`
+# and `pytest tests/unit/business` run the same tests.
+CATEGORIES = {
+    "business": "tests/unit/business: practice log, topic queue, lesson catalog",
+    "agent": "tests/unit/agent: the thin tool layer, results and the search cap",
+    "integrations": "tests/unit/integrations: search and YouTube data helpers",
+    "reports": "tests/unit/reports: the usage report CLI",
+    "models": "tests/unit/models: the pydantic data models (deep-links models are parked)",
+    "helpers": "tests of the LLM test helpers (claims), no model calls",
+    "architecture": "layer rules: business and integrations never import the agent",
+}
+
+
 def pytest_configure(config):
     config.addinivalue_line("markers", "llm: calls a real model (costs money); run with --llm")
+    for name, doc in CATEGORIES.items():
+        config.addinivalue_line("markers", f"{name}: {doc}")
 
 
 def pytest_collection_modifyitems(config, items):
+    for item in items:
+        parts = item.path.parts
+        for name in ("business", "agent", "integrations", "reports", "models"):
+            if "unit" in parts and name in parts:
+                item.add_marker(getattr(pytest.mark, name))
+        if item.path.name == "test_architecture.py":
+            item.add_marker(pytest.mark.architecture)
+        if item.path.name == "test_llm_helpers.py":
+            item.add_marker(pytest.mark.helpers)
+
     if not config.getoption("--llm"):
         skip = pytest.mark.skip(reason="calls a real model; run with --llm")
     elif not os.getenv("OPENAI_API_KEY"):

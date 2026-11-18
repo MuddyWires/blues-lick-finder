@@ -1,6 +1,6 @@
 import pytest
 
-from tests.utils import claims
+from tests.llm.utils import claims
 
 
 @pytest.mark.parametrize("answer", [

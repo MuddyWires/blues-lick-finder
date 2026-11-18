@@ -4,7 +4,7 @@ from typing import Any
 
 from lick_finder.agent import AgentStreamRunner
 
-from tests.cost_tracker import capture_usage
+from tests.llm.cost_tracker import capture_usage
 
 
 @dataclass

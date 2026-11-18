@@ -5,7 +5,7 @@ loosely on the wording."""
 
 import pytest
 
-from tests.utils import claims, collect_tools, run_agent_test
+from tests.llm.utils import claims, collect_tools, run_agent_test
 
 REPEATS = 3
 

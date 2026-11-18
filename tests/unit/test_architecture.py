@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).parent.parent / "lick_finder"
+ROOT = Path(__file__).parents[2] / "lick_finder"
 
 # layer -> prefixes it must not import
 FORBIDDEN = {

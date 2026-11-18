@@ -6,8 +6,8 @@ import pytest
 from lick_finder.business.lessons import LessonStore
 from lick_finder.agent import LickFinderTools
 
-from tests.judge import assert_criteria, judge
-from tests.utils import run_agent_test
+from tests.llm.judge import assert_criteria, judge
+from tests.llm.utils import run_agent_test
 
 pytestmark = pytest.mark.llm
 
