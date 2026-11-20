@@ -14,12 +14,16 @@ uses it: the best chunk per video, top k videos.
 Per method: hit rate, MRR, average retrieval latency (the vector methods include
 one embedding call) and the average amount of text the model would receive.
 The dev misses are printed so you can read them before changing the index.
+
+Every run is saved to evals/results/retrieval_<time>.csv (one row per split and
+method) and retrieval_<time>_misses.csv (every miss for every method).
 """
 
 import argparse
 import csv
 import re
 import time
+from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -30,6 +34,7 @@ from lick_finder.integrations.search import get_engine
 load_dotenv()
 
 CASES = Path(__file__).parent / "retrieval_cases.csv"
+RESULTS_DIR = Path(__file__).parent / "results"
 METHODS = ("tfidf", "vector", "hybrid", "hybrid@0.5", "hybrid@0.25")
 
 
@@ -82,24 +87,44 @@ def run_method(engine, cases, method, k):
 
 
 def report(name, cases, engine, k, show_misses):
+    """Print the table; return (metric rows, miss rows) for the saved files."""
     print(f"\n{name}: {len(cases)} questions, k={k}")
     print(f"{'method':12} hit@{k}  MRR    latency   text sent")
-    misses = {}
+    titles = {d["video_id"]: d["title"] for d in engine.documents}
+    rows, miss_rows, vector_misses = [], [], []
     for method in METHODS:
-        ranked, latencies, sizes, chunks = run_method(engine, cases, method, k)
+        ranked, latencies, sizes, _ = run_method(engine, cases, method, k)
         m = retrieval_metrics(cases, ranked, k)
-        print(f"{method:12} {m['hit_rate']:.2f}   {m['mrr']:.2f}   "
-              f"{1000 * sum(latencies) / len(cases):5.0f} ms  {sum(sizes) / len(cases):6.0f} chars")
-        misses[method] = [(c, r, ch) for c, r, ch in zip(cases, ranked, chunks)
-                          if not (set(r) & c["relevant_ids"])]
+        latency_ms = 1000 * sum(latencies) / len(cases)
+        chars = sum(sizes) / len(cases)
+        print(f"{method:12} {m['hit_rate']:.2f}   {m['mrr']:.2f}   {latency_ms:5.0f} ms  {chars:6.0f} chars")
+        rows.append({"split": name.lower(), "method": method, "k": k, "questions": len(cases),
+                     "hit_rate": round(m["hit_rate"], 3), "mrr": round(m["mrr"], 3),
+                     "latency_ms": round(latency_ms, 1), "chars_sent": round(chars)})
+        for case, ids in zip(cases, ranked):
+            if set(ids) & case["relevant_ids"]:
+                continue
+            miss = {"split": name.lower(), "method": method, "id": case["id"], "kind": case["kind"],
+                    "query": case["query"], "wanted_title_phrase": case["title_any"],
+                    "n_relevant": len(case["relevant_ids"]),
+                    "got": " | ".join(titles.get(i, i)[:60] for i in ids)}
+            miss_rows.append(miss)
+            if method == "vector":
+                vector_misses.append(miss)
     if show_misses:
-        titles = {d["video_id"]: d["title"] for d in engine.documents}
-        method = "vector"  # the agent's default search method
-        print(f"\nMisses for '{method}' ({len(misses[method])}):")
-        for case, ranked_ids, _ in misses[method]:
-            print(f"  #{case['id']} [{case['kind']}] {case['query']}")
-            print(f"     wanted: {len(case['relevant_ids'])} lessons with '{case['title_any']}' in the title")
-            print(f"     got:    {[titles.get(i, i)[:45] for i in ranked_ids[:k]]}")
+        print(f"\nMisses for 'vector', the agent's default method ({len(vector_misses)}):")
+        for miss in vector_misses:
+            print(f"  #{miss['id']} [{miss['kind']}] {miss['query']}")
+            print(f"     wanted: {miss['n_relevant']} lessons with '{miss['wanted_title_phrase']}' in the title")
+            print(f"     got:    {miss['got']}")
+    return rows, miss_rows
+
+
+def save(path, rows):
+    with path.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]) if rows else ["none"])
+        w.writeheader()
+        w.writerows(rows)
 
 
 def main():
@@ -114,11 +139,18 @@ def main():
     test = [c for c in cases if c["split"] == "test"]
     assert not {c["group"] for c in dev} & {c["group"] for c in test}, "a group is on both sides"
 
-    report("DEV", dev, engine, args.k, show_misses=True)
+    rows, misses = report("DEV", dev, engine, args.k, show_misses=True)
     if args.test:
-        report("TEST", test, engine, args.k, show_misses=False)
+        test_rows, test_misses = report("TEST", test, engine, args.k, show_misses=False)
+        rows, misses = rows + test_rows, misses + test_misses
     else:
         print(f"\n({len(test)} test questions held out; run with --test for the final comparison)")
+
+    RESULTS_DIR.mkdir(exist_ok=True)
+    stamp = f"{datetime.now():%Y%m%d_%H%M%S}"
+    save(RESULTS_DIR / f"retrieval_{stamp}.csv", rows)
+    save(RESULTS_DIR / f"retrieval_{stamp}_misses.csv", misses)
+    print(f"\nSaved evals/results/retrieval_{stamp}.csv and retrieval_{stamp}_misses.csv")
 
 
 if __name__ == "__main__":
