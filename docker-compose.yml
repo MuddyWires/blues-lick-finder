@@ -1,0 +1,22 @@
+services:
+  # The agent's Streamlit chat. `docker compose up --build`, then open
+  # http://localhost:8501. Needs a .env (copy .env.example) and a data/ folder
+  # with lessons.json (see `fetch` below).
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8501:8501"   # localhost only: the app has no login
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # Fetches lesson topics from data/topics.txt into data/lessons.json.
+  # Not started by `up`: docker compose --profile fetch run --rm fetch
+  fetch:
+    build: .
+    command: ["python", "-m", "lick_finder.integrations.youtube_data"]
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    profiles: ["fetch"]

@@ -1,0 +1,21 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install dependencies
+        run: uv sync --frozen
+      - name: Free tests (no model calls, no network)
+        # Importing the embeddings module builds an OpenAI client, which needs
+        # a key to exist. The free tests never call the API, so a dummy is enough.
+        env:
+          OPENAI_API_KEY: dummy-key-for-free-tests
+        run: uv run pytest -q
