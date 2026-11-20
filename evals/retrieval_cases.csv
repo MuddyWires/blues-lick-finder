@@ -1,0 +1,32 @@
+id,group,split,kind,query,title_any
+1,hide_away,dev,direct,Hide Away guitar lesson,hide away|hideaway
+2,hide_away,dev,vague,how do I play that Freddie King instrumental intro,hide away|hideaway
+3,hide_away,dev,varied,freddie king hideaway tab,hide away|hideaway
+4,pride_joy,dev,direct,Pride and Joy guitar lesson,pride and joy
+5,pride_joy,dev,vague,teach me that SRV shuffle riff,pride and joy
+6,pride_joy,dev,varied,stevie ray vaughan texas shuffle song tutorial,pride and joy
+7,killing_floor,dev,direct,Killing Floor guitar lesson,killing floor
+8,killing_floor,dev,varied,howlin wolf riff everyone plays at jam sessions,killing floor
+9,sweet_home,dev,direct,Sweet Home Chicago guitar lesson,sweet home chicago
+10,sweet_home,dev,varied,easy blues brothers song for beginners,sweet home chicago
+11,bending,dev,direct,string bending technique lesson,bend
+12,bending,dev,varied,how do I make the note go up in pitch without going out of tune,bend
+13,bending,dev,wrong_terms,blues guitar stretching the string technique,bend
+14,twelve_bar,dev,direct,12 bar blues guitar lesson,12 bar|twelve bar
+15,twelve_bar,dev,varied,basic blues chord progression for beginners,12 bar|twelve bar|blues progression
+16,thrill_gone,dev,direct,The Thrill Is Gone guitar lesson,thrill is gone
+17,thrill_gone,dev,varied,how to play the BB King song in B minor,thrill is gone
+18,turnaround,dev,direct,blues turnaround licks lesson,turnaround
+19,turnaround,dev,varied,how do I end a 12 bar blues phrase and loop back,turnaround
+20,hoochie,test,direct,Hoochie Coochie Man guitar lesson,hoochie coochie
+21,hoochie,test,varied,Muddy Waters riff with the stop time hits,hoochie coochie
+22,tbone,test,direct,T-Bone Walker licks,t-bone|tbone|t bone
+23,tbone,test,varied,jump blues swing lead licks from the 1940s,t-bone|tbone|t bone
+24,slide,test,direct,Muddy Waters slide guitar lesson,slide
+25,slide,test,wrong_terms,how do I play with a bottleneck on my finger,slide|bottleneck
+26,pentatonic,test,direct,minor pentatonic scale for blues,pentatonic
+27,pentatonic,test,varied,which five note scale do I use to solo over blues,pentatonic
+28,albert_king,test,direct,Albert King licks lesson,albert king
+29,albert_king,test,varied,how do I get that big wide bend sound from the Flying V player,albert king
+30,shuffle,test,direct,blues shuffle rhythm guitar lesson,shuffle
+31,shuffle,test,varied,how do I get a swinging triplet feel in my rhythm playing,shuffle|triplet
