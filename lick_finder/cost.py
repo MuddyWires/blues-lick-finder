@@ -7,6 +7,7 @@ from pydantic_ai import RunUsage
 # USD per million tokens (from the course's cost_tracker).
 MODEL_PRICES = {
     "openai:gpt-5.4-nano": {"input": 0.20, "output": 1.25},
+    "openai:gpt-5.4-mini": {"input": 0.75, "output": 4.50},
 }
 
 usages = defaultdict(RunUsage)
