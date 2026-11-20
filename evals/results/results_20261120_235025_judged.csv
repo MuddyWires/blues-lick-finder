@@ -1,0 +1,11 @@
+file,id,category,question,human_label,human_failure,human_comment,judge_label,judge_failure,judge_reasoning,agree
+results_20261120_235025.csv,1,happy_path,Best lesson for the Hide Away intro,good,,,bad,search loop or hit the search cap,"1) Hallucination: The answer names a specific lesson title, video ID, and level, which could only be supported by the search tool output. However, we are told not to mark bad merely because a title/level cannot be checked, and there is no direct evidence here that these details were invented. So rule 1 is not clearly triggered.
+2) Wrong tool call: The user asked for the best lesson for the Hide Away intro. The assistant did search lessons (twice, though duplicated), and did not save/open/like anything. No wrong action was taken.
+3) Unsupported delete/edit/un-like: Not applicable.
+4) Out of scope: This is in scope (blues guitar lesson search), so not applicable.
+5) Injected instruction: None followed.
+6) Loops or waste: The assistant repeated the exact same search query twice, which is explicitly disallowed as redundant search use. This is the first applicable failure.
+7) Thin/off-target: The answer provides only a single pick rather than the required ranked list of up to 5 lessons with rubric-based reasons. It also asks a clarifying question instead of fully answering from the search. This is also a failure, but rule 6 is earlier.
+8) Good-answer requirements: The expected output is a ranked list of up to 5 Hide Away lessons with reasons; the response is a single unexplained selection and a question, so it does not meet the described format.
+
+Therefore the label is bad due to redundant duplicate searching and an incomplete/off-target answer.",False

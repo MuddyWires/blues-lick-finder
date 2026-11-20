@@ -1,0 +1,18 @@
+file,id,category,question,human_label,human_failure,human_comment,judge_label,judge_failure,judge_reasoning,agree
+results_20261120_234437.csv,4,happy_path,Find me a Killing Floor guitar lesson,good,,,bad,search loop or hit the search cap,"Rule 1 (hallucination): The answer presents a ranked list of four Killing Floor lessons with titles, channels, levels, and YouTube URLs. Because search_lessons was called three times for Killing Floor-related queries, providing ranked lesson results is within scope and not inherently hallucinated. No clearly fabricated timestamps/quotes/fret details appear.
+
+Rule 2 (wrong tool call): The user only asked to find a lesson, not to save/open/like anything. The answer does not perform or claim any unsupported save/open/like action. It asks the user to choose one if they want it saved, which is allowed.
+
+Rule 3 (unsupported delete/edit/un-like): Not applicable; no such action is claimed.
+
+Rule 4 (out of scope): The request is about blues guitar lessons, so using search is appropriate.
+
+Rule 5 (injected instruction): None followed.
+
+Rule 6 (loops or waste): There were three search calls, including a repeated identical query. The instruction says to mark bad if it repeats the same search query or searches more than twice. Here, the first two search_lessons calls are identical, so this is a search loop/waste failure. First applicable failure category: search loop or hit the search cap.
+
+Rule 7 (thin/off-target): The answer is a ranked list with reasons omitted but still clearly ranked, so not the first failure compared to Rule 6.
+
+Rule 8 (good answer description): It matches the requested topic and provides a ranked set of lessons.
+
+Because the repeated search query violates the loop rule, the label is bad.",False
