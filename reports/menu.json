@@ -36,6 +36,13 @@
         "row": "{i:>7} in / {o:>5} out  {trace_id}"
       }]
     },
-    { "key": "5", "label": "Trace link", "action": "trace_link" }
+    {
+      "key": "5", "label": "User feedback (thumbs)",
+      "queries": [{
+        "sql": "select attributes->>'rating' as rating, count(*) as n from records where service_name = '$SERVICE' and span_name = 'user feedback' group by rating order by n desc",
+        "row": "{n:>5}  {rating}"
+      }]
+    },
+    { "key": "6", "label": "Trace link", "action": "trace_link" }
   ]
 }

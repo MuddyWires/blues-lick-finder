@@ -81,6 +81,25 @@ def tool_calls(result):
     ]
 
 
+def feedback_buttons(i, m):
+    """Thumbs up/down under an answer; recorded in Logfire next to the trace."""
+    given = m.get("feedback")
+    if given:
+        st.caption(f"Feedback sent: {'👍' if given == 'up' else '👎'}")
+        return
+    up, down, _ = st.columns([1, 1, 8])
+    for col, rating, label in ((up, "up", "👍"), (down, "down", "👎")):
+        if col.button(label, key=f"fb_{rating}_{i}"):
+            m["feedback"] = rating
+            logfire.info(
+                "user feedback",
+                rating=rating,
+                session_id=ss.session_id,
+                trace_id=m["details"]["trace_id"],
+            )
+            st.rerun()
+
+
 def show_details(d):
     st.markdown(f"🔗 [Trace ↗]({d['trace_url']})")  # always visible
     with st.expander("Details", expanded=True):
@@ -105,11 +124,12 @@ with st.sidebar:
     st.link_button("Open Logfire project ↗", TRACE_URL)
 
 st.title("🎸 Blues Lick Finder")
-for m in ss.messages:
+for i, m in enumerate(ss.messages):
     with st.chat_message(m["role"]):
         st.write(m["content"])
         if "details" in m:
             show_details(m["details"])
+            feedback_buttons(i, m)
 
 if question := st.chat_input("Ask about a blues lick or lesson…"):
     ss.messages.append({"role": "user", "content": question})
@@ -143,6 +163,7 @@ if question := st.chat_input("Ask about a blues lick or lesson…"):
             "tools": tool_calls(result),
             "summary": format_summary(s),
             "trace_url": f"{TRACE_URL}?q=trace_id%3D%27{trace_id}%27",
+            "trace_id": trace_id,
         }
         st.write(result.output.answer)
         show_details(details)
