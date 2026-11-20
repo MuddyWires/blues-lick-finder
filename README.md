@@ -1,101 +1,147 @@
 # Blues Lick Finder & Tracker
 
-An agent that finds well-taught blues guitar lessons for a song or technique, ranks them by teaching quality, and automatically builds a tagged practice log.
+An agent that finds well-taught blues guitar lessons for a song or technique, ranks them by teaching quality, and keeps a practice log of the lessons you pick.
 
-## The Problem
+## The problem
 
-When I learn blues licks, I keep searching for the same lessons over and over. YouTube ranks videos by engagement, not by how well they teach, so the clearest lessons are often buried under the most popular ones.
+When I learn blues licks, I keep searching for the same lessons over and over. YouTube ranks videos by engagement, not by how well they teach, so the clearest lessons are often buried under the most popular ones. And nothing remembers which lessons I chose, which I liked, or what I should practice next.
 
-## What It Does
+## What it does
 
-You give the agent a song or a technique (for example "BB King box licks" or "Hideaway intro"). The agent:
+You chat with the agent ("best lesson for the Hide Away intro", "easy BB King licks, I'm a beginner", "what should I practice today?"). It searches a stored knowledge base of blues lesson videos, ranks the results against a teaching-quality rubric (clear breakdown, slow demonstration, tab or fret detail, the why behind the lick, focus), and tracks the lessons you choose.
 
-1. Searches YouTube for candidate lesson videos using the YouTube Data API.
-2. Pulls transcripts with `youtube-transcript-api` where they exist.
-3. Scores each video against a teaching-quality rubric (for example clear breakdown, slow demonstration, tab or notation, explains the why behind the lick) and returns a ranked list with a short justification for each video.
-4. Adds the lessons you pick to a practice log, tagged by song, technique, and key, so you don't have to search for the same lick again.
+**Knowledge base:** 750 YouTube lessons fetched with `yt-dlp` and `youtube-transcript-api` (metadata, transcript, top comments, chapters), of which 593 have a transcript. Transcripts are split into overlapping chunks and searched with embeddings (`text-embedding-3-small`). Each lesson also gets a level (beginner / intermediate / advanced / unclear), labelled once by an LLM and cached.
 
-The core of the project is the agent tool-use loop and the quality of the ranking prompt and rubric.
+**The agent** (`pydantic-ai`, `gpt-5.4-mini`) has seven tools. The design and the reasons behind them are in [design.md](design.md).
 
-### Data
+| Tool | What it does |
+|---|---|
+| `search_lessons` | Searches the stored lessons; optional level filter. Capped at 2 searches per question. |
+| `save_lesson` | Saves a lesson to the practice log, only when you choose one. Rejects unknown ids and duplicates. |
+| `get_history` | Lists saved lessons (filter, liked only, limit). Also answers "what should I practice today?". |
+| `open_lesson` | Replays a saved lesson and records the view. |
+| `like_lesson` | Marks a saved lesson as liked. |
+| `queue_topic` | Queues a new search topic for the next data fetch when nothing relevant is stored. |
+| `change_saved_lesson` | Stub: delete, edit and un-like are not supported yet, and the agent says so. |
 
-- YouTube Data API: video search and metadata (public and free, needs an API key)
-- `youtube-transcript-api`: video transcripts (public and free)
-
-### Risks
-
-Some videos have no transcript, and YouTube may block transcript requests from time to time. There should still be enough data to get started and iterate on.
-
-### Validation
-
-I will rank 10 to 15 videos by hand first, then compare the agent's rankings to mine.
-
-### Scope and Complexity
-
-Medium. The required part is the agent tool-use loop and the prompt and rubric quality. FastAPI, Chroma, Docker, and Redis/RQ are optional extras to add at the end. They are not needed to finish the project.
+Text inside search results is treated as data, never as instructions. The agent declines off-topic questions without calling any tool, and never reveals its instructions.
 
 ## Setup
 
-1. Install uv if you don't have it yet: https://docs.astral.sh/uv/getting-started/installation/
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) and an OpenAI API key. No YouTube API key is needed.
 
-2. Clone this repository (or download the zip and extract it).
+```
+git clone https://github.com/MuddyWires/blues-lick-finder.git
+cd blues-lick-finder
+cp .env.example .env        # then put your OPENAI_API_KEY in .env
+make install                # uv sync --group app
+```
 
-3. Create a `.env` file from the template and add your API key:
+### Data
 
-       cp .env.example .env
+The data files are large and gitignored, so a fresh clone has none. Only `data/topics.txt` (the list of YouTube searches and channels) is in the repo.
 
-4. Install dependencies:
+```
+make fetch                  # fetches every topic in data/topics.txt into data/lessons.json
+```
 
-       uv sync
+- Fetching takes 1 to 3 minutes per topic and YouTube can block transcript requests. The optional `DATAIMPULSE_*` settings in `.env.example` route requests through a proxy.
+- The first chat after a fetch labels each new lesson's level and embeds its chunks (small OpenAI calls, cached in `data/levels.json` and `data/chunk_embeddings.npz`). Labelling levels for the full catalog cost about $0.40 (see design.md); embeddings are a small extra.
+- Add your own topics by editing `data/topics.txt` and running `make fetch` again. The agent also appends topics there when it queues one.
 
-5. Start Jupyter:
+## Run
 
-       uv run jupyter notebook
+| | Command |
+|---|---|
+| Terminal chat | `make run` (or `uv run python -m lick_finder`) |
+| Web chat (Streamlit) | `make app`, then open http://localhost:8501 |
+| Docker | `make docker-up` (needs `.env` and a populated `data/`; `make docker-fetch` fetches inside Docker) |
+| Usage report (Logfire) | `uv run python -m reports.report_cli` |
 
-## Chat, monitoring and reports
-
-Each user runs their own copy with their own keys. Nothing is shared.
-
-Put these in your `.env`: `OPENAI_API_KEY`, and for monitoring your own Logfire
-project's `LOGFIRE_PROJECT_URL`, plus a write token (`uv run logfire auth`, or
-`LOGFIRE_TOKEN`) and a read token (`LOGFIRE_READ_TOKEN`).
-
-- CLI chat: `uv run python -m lick_finder`
-- Streamlit app: `uv run --group app streamlit run streamlit_app/app.py`
-- Usage report menu: `uv run python -m reports.report_cli`
+`make help` lists every target.
 
 ## Code layout
 
 ```
 lick_finder/
   agent/          what the model sees: prompt, tools, tool messages
-  business/       the operations (practice log, lesson catalog); no LLM knowledge
-  integrations/   YouTube, OpenAI embeddings, labelling, search index
+  business/       the operations (practice log, lesson catalog, topic queue); no LLM knowledge
+  integrations/   YouTube fetching, OpenAI embeddings, level labelling, search index
+streamlit_app/    web chat with thumbs up/down feedback
+reports/          menu-driven usage report over the Logfire traces
+evals/            scenarios, batch runner, LLM judge, labeling app, retrieval eval
+tests/            unit/ (free) and llm/ (real model)
+notebooks/        setup check and the first RAG baseline
 ```
 
-Dependencies only point one way: `agent` calls `business`, which calls
-`integrations`. `tests/test_architecture.py` enforces it.
+Dependencies point one way: `agent` calls `business`, which calls `integrations`. `tests/unit/test_architecture.py` enforces it.
 
-## Running tests
+## Tests
 
-Free tests (no model, no network) run by default. Tests that call a real model
-need `--llm` and cost a few cents.
+Free tests (no model, no network) run by default and in CI. Tests that call a real model need `--llm` and cost a few cents.
 
 ```
-uv run pytest                      # all free tests
-uv run pytest tests/unit/business  # one category by folder
-uv run pytest -m agent             # or by marker
-uv run pytest tests/llm --llm      # real-model behaviour tests
+make test                          # uv run pytest, all free tests
+uv run pytest tests/unit/business  # one layer by folder (also -m business, agent, integrations, reports, models)
+make test-llm                      # also the real-model tests
 ```
 
-Categories: `business`, `agent`, `integrations`, `reports`, `models`,
-`architecture`, `helpers`, and `llm`.
+The real-model tests are in `tests/llm/`. `test_agent.py` checks tool use and the practice log (invalid ids, delete and un-like are refused). `test_judge.py` tests the LLM judge itself: it must fail an invented quote and pass a faithful one. CI (`.github/workflows/ci.yml`) runs the free tests on every push.
+
+## Evaluation
+
+### Retrieval, separately from the agent
+
+`uv run python -m evals.retrieval` (`make retrieval`) scores search alone: hit rate and MRR at k=5, retrieval latency, and the text sent to the model, for five methods. Questions are in `evals/retrieval_cases.csv`: 31 hand-written questions (direct, vague and wrong-terminology phrasing) with the lessons that count as correct. They are split into dev (19) and a held-out test set (12, only scored with `--test`), and questions about the same song or technique stay on the same side. Results are saved to `evals/results/retrieval_<time>.csv`, with the misses in a second file.
+
+`evals/generated.py` is a second check on 200 LLM-written questions, each credited to its source video (`uv run python -m evals.generated 200`).
+
+| Method | 200 generated: hit@5 / MRR | Hand-written dev (19): hit@5 / MRR | Hand-written test (12): hit@5 / MRR | Latency |
+|---|---|---|---|---|
+| tfidf | 0.36 / 0.24 | 0.84 / 0.71 | 0.83 / 0.58 | 5 to 8 ms |
+| **vector (default)** | **0.64 / 0.48** | 0.89 / **0.85** | 0.67 / **0.67** | 180 to 245 ms |
+| hybrid | 0.58 / 0.40 | **0.95** / 0.78 | 0.75 / 0.59 | about 190 ms |
+| hybrid@0.5 | 0.60 / 0.41 | **0.95** / 0.81 | 0.75 / 0.65 | about 195 ms |
+| hybrid@0.25 | **0.64** / 0.43 | **0.95** / 0.81 | 0.75 / 0.63 | about 190 ms |
+
+**Choice: vector stays the default.** It has the best hit rate and MRR on the largest set and the best MRR on both hand-written sets, so its first result is the most often right. Hybrid finds a relevant lesson more often on the dev questions, but that does not hold on the test questions, and with 12 to 19 questions one question moves a score by 5 to 8 points. Latency is dominated by the embedding call (tfidf needs none). The misses were read: for example, "how do I end a 12 bar blues phrase and loop back" returns general 12-bar lessons instead of turnaround lessons, a vocabulary gap.
+
+### The agent
+
+- **Scenarios:** `evals/scenarios.csv` holds 65 hand-written scenarios: happy path (16), varied phrasing (12), edge cases (12), out of scope (7) and breaking (18: hallucination bait, prompt injection and prompt-extraction attempts, tool misuse). Each has the tools it must and must not call, and a concrete rule for a good answer. They were written with an AI assistant (Claude Code), not sampled by an LLM from the data.
+- **Batch run:** `make eval` runs every scenario against the real agent with a temp copy of the practice log, checks the tool calls, and has an LLM judge grade the answer. Results go to `evals/results/results_<time>.csv`. `--model` picks the agent's model and ids pick scenarios: `uv run python -m evals.run_scenarios --model openai:gpt-5.4-mini 41 42`.
+- **Labeling:** `make label` opens a Streamlit app to mark each answer good or bad (one click) with a failure category for bad ones. Labels are saved next to the results file.
+- **Judge vs labels:** `make judge` runs the LLM judge (`evals/judge.py`, structured output: reasoning, label, failure category) on every labeled answer and prints accuracy, precision and recall for "bad", the confusion matrix, and each disagreement.
+- **From real use:** `make logs-to-cases` turns real questions from your Logfire traces into candidate scenarios to review.
+
+**What the evaluation changed:**
+
+| Change | Evidence (60 scenarios, tool-use check) |
+|---|---|
+| Model `gpt-5.4-nano` to `gpt-5.4-mini` | 48/60 to 59/60 passing. Out-of-scope questions 2/7 to 7/7, stuck loops 3 to 0. The agent default is now mini. |
+| Prompt: stay on topic, never queue off-topic topics | Added after nano searched or queued for weather, code and gibberish questions. |
+| Prompt: never reveal instructions, call no tool | #55 and #61 to #65 (prompt-extraction attempts) all pass on mini with no tool calls. |
+| Judge prompt v1 to v2 (check every tool call first, hallucination needs positive evidence) | Against 60 labels: accuracy 65.0% to 76.7%, precision 51.5% to 68.2%, recall 77.3% to 68.2%. Recall fell because the looser hallucination rule let the judge miss three out-of-scope cases. |
+
+**Limits.** The 60 labels for the nano run (`evals/results/results_20261121_002341_labels.csv`) were produced by an AI assistant, so those judge numbers measure agreement with it, not with me. Hand labels are made with `make label`. Results vary between runs, so one run per model is a rough comparison. The judge cannot see tool results, because the results CSV does not store them, so it cannot check quotes or timestamps.
+
+## Monitoring
+
+Every session is traced in [Logfire](https://logfire.pydantic.dev) (`instrument_pydantic_ai`, `instrument_openai`): each question is a `chat turn` span with its tool calls, token usage and cost.
+
+1. Create a Logfire project, run `uv run logfire auth` (or set `LOGFIRE_TOKEN`), and set `LOGFIRE_PROJECT_URL` in `.env`. Monitoring is optional: without a Logfire token the app runs normally and just doesn't send traces. In Docker, set `LOGFIRE_TOKEN` in `.env`.
+2. For the usage report and the all-sessions cost in the Streamlit sidebar, create a read token and set `LOGFIRE_READ_TOKEN`.
+3. Chat. The CLI prints a trace link at the end. The Streamlit app shows a trace link under every answer.
+4. `uv run python -m reports.report_cli` lists recent sessions, cost, tool usage, the biggest LLM calls and the thumbs up/down counts.
+
+**User feedback:** the Streamlit app has 👍 and 👎 under every answer. Each click is logged to Logfire as a `user feedback` event with the trace id.
+
+Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It covers the chat model only, not embedding or level-labelling calls. More notes are in `monitoring_report.md`.
+
+## Docker
+
+`docker-compose.yml` runs the Streamlit app on http://localhost:8501 (bound to localhost; the app has no login). It reads your `.env` and mounts `./data`, so fetch the data first (`make fetch`, or `make docker-fetch` inside Docker). `docker compose up --build` is the same as `make docker-up`.
 
 ## Notebooks
 
-- `notebooks/01-setup.ipynb` - smoke test that confirms your environment works
-- `notebooks/02-rag.ipynb` - a minimal RAG baseline you can adapt to your own data
-
-## Data
-
-Put your project data in the `data/` folder. See `notebooks/02-rag.ipynb` for how to load it.
+`notebooks/01-setup.ipynb` is a smoke test that confirms your environment works. The earlier RAG and search-evaluation notebooks are kept locally and are not in the repo; their work now lives in `lick_finder/integrations/` and `evals/`.
