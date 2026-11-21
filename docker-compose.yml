@@ -20,3 +20,13 @@ services:
     volumes:
       - ./data:/app/data
     profiles: ["fetch"]
+
+  # Labels new lessons and embeds new chunks into data/. Run it after `fetch`:
+  # docker compose --profile fetch run --rm index
+  index:
+    build: .
+    command: ["python", "-m", "lick_finder.integrations.index"]
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    profiles: ["fetch"]

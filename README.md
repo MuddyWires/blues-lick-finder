@@ -10,7 +10,7 @@ When I learn blues licks, I keep searching for the same lessons over and over. Y
 
 You chat with the agent ("best lesson for the Hide Away intro", "easy BB King licks, I'm a beginner", "what should I practice today?"). It searches a stored knowledge base of blues lesson videos, ranks the results against a teaching-quality rubric (clear breakdown, slow demonstration, tab or fret detail, the why behind the lick, focus), and tracks the lessons you choose.
 
-**Knowledge base:** 750 YouTube lessons fetched with `yt-dlp` and `youtube-transcript-api` (metadata, transcript, top comments, chapters), of which 593 have a transcript. Transcripts are split into overlapping chunks and searched with embeddings (`text-embedding-3-small`). Each lesson also gets a level (beginner / intermediate / advanced / unclear), labelled once by an LLM and cached.
+**Knowledge base:** 750 YouTube lessons fetched with `yt-dlp` and `youtube-transcript-api` (metadata, transcript, top comments, chapters), of which 593 have a transcript. Transcripts are split into overlapping chunks and searched with embeddings (`text-embedding-3-small`). Each lesson also gets a level (beginner / intermediate / advanced / unclear), labelled once by an LLM in `make index` and cached.
 
 **The agent** (`pydantic-ai`, `gpt-5.4-mini`) has seven tools. The design and the reasons behind them are in [design.md](design.md).
 
@@ -43,11 +43,13 @@ The data files are large and gitignored, so a fresh clone has none. Only `data/t
 
 ```
 make fetch                  # fetches every topic in data/topics.txt into data/lessons.json
+make index                  # labels each lesson's level and embeds the transcript chunks
 ```
 
 - Fetching takes 1 to 3 minutes per topic and YouTube can block transcript requests. The optional `DATAIMPULSE_*` settings in `.env.example` route requests through a proxy.
-- The first chat after a fetch labels each new lesson's level and embeds its chunks (small OpenAI calls, cached in `data/levels.json` and `data/chunk_embeddings.npz`). Labelling levels for the full catalog cost about $0.40 (see design.md); embeddings are a small extra.
-- Add your own topics by editing `data/topics.txt` and running `make fetch` again. The agent also appends topics there when it queues one.
+- `make index` is the only step that calls OpenAI to prepare the data. It labels levels 10 lessons per call and embeds chunks in batches of 100, saves as it goes, and skips anything already cached, so a second run costs nothing. For the full catalog it takes a few minutes and costs about $0.40 for levels (see design.md), plus a small amount for embeddings.
+- The app and the agent only read what `make index` produced. If the index is missing, search answers that it isn't ready and tells you to run `make index`, instead of labelling hundreds of lessons in the middle of a question.
+Add your own topics by editing `data/topics.txt` and running `make fetch` again. The agent also appends topics there when it queues one.
 
 ## Run
 
@@ -55,7 +57,7 @@ make fetch                  # fetches every topic in data/topics.txt into data/l
 |---|---|
 | Terminal chat | `make run` (or `uv run python -m lick_finder`) |
 | Web chat (Streamlit) | `make app`, then open http://localhost:8501 |
-| Docker | `make docker-up` (needs `.env` and a populated `data/`; `make docker-fetch` fetches inside Docker) |
+| Docker | `make docker-up` (needs `.env` and an indexed `data/`; `make docker-fetch` and `make docker-index` do those steps inside Docker) |
 | Usage report (Logfire) | `uv run python -m reports.report_cli` |
 
 `make help` lists every target.
@@ -136,7 +138,7 @@ Every session is traced in [Logfire](https://logfire.pydantic.dev) (`instrument_
 
 **User feedback:** the Streamlit app has 👍 and 👎 under every answer. Each click is logged to Logfire as a `user feedback` event with the trace id.
 
-Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It covers the chat model only, not embedding or level-labelling calls. More notes are in `monitoring_report.md`.
+Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It covers the chat model only, not embedding or level-labelling calls.
 
 ## Docker
 

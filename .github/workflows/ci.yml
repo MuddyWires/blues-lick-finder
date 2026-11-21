@@ -14,8 +14,5 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
       - name: Free tests (no model calls, no network)
-        # Importing the embeddings module builds an OpenAI client, which needs
-        # a key to exist. The free tests never call the API, so a dummy is enough.
-        env:
-          OPENAI_API_KEY: dummy-key-for-free-tests
+        # No API key: the free tests never call OpenAI, and clients are built on first use.
         run: uv run pytest -q

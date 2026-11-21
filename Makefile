@@ -1,10 +1,13 @@
-.PHONY: help install test test-llm run app label eval judge retrieval logs-to-cases fetch docker-up docker-fetch
+.PHONY: help install index test test-llm run app label eval judge retrieval logs-to-cases fetch docker-up docker-fetch docker-index
 
 help:            ## list the targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/ -/'
 
 install:         ## install dependencies (including the Streamlit app group)
 	uv sync --group app
+
+index:           ## label new lessons and embed new chunks (the only step that calls OpenAI to prepare data)
+	uv run python -m lick_finder.integrations.index
 
 test:            ## free tests: no model calls, no network
 	uv run pytest
@@ -41,3 +44,6 @@ docker-up:       ## start the app in Docker on http://localhost:8501
 
 docker-fetch:    ## fetch lesson data inside Docker (writes to ./data)
 	docker compose --profile fetch run --rm fetch
+
+docker-index:    ## label and embed inside Docker (writes to ./data)
+	docker compose --profile fetch run --rm index
