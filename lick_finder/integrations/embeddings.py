@@ -1,4 +1,5 @@
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -12,7 +13,15 @@ load_dotenv()
 EMBED_MODEL = "text-embedding-3-small"
 BATCH_SIZE = 100
 
-client = OpenAI()
+
+
+class IndexNotBuilt(RuntimeError):
+    """Some chunks have no embedding yet. Run `make index` to build them."""
+
+
+@lru_cache(maxsize=1)
+def get_client():
+    return OpenAI()  # built on first use, so importing this module needs no API key
 
 
 def chunk_text(chunk):
@@ -26,14 +35,16 @@ def text_key(text):
 def embed_texts(texts):
     vectors = []
     for i in range(0, len(texts), BATCH_SIZE):
-        resp = client.embeddings.create(model=EMBED_MODEL, input=texts[i:i + BATCH_SIZE])
+        resp = get_client().embeddings.create(model=EMBED_MODEL, input=texts[i:i + BATCH_SIZE])
         vectors += [d.embedding for d in resp.data]
     return np.array(vectors, dtype=np.float32)
 
 
-def chunk_vectors(chunks, path=EMBEDDINGS_PATH):
+def chunk_vectors(chunks, path=EMBEDDINGS_PATH, embed_missing=False):
     """One vector per chunk. Cached by hash of the chunk text, so rechunking
-    only embeds chunks whose text is new."""
+    only embeds chunks whose text is new. Embedding calls the API, so it only
+    happens with embed_missing=True (the offline index step); otherwise missing
+    vectors raise IndexNotBuilt."""
     cache = {}
     if Path(path).exists():
         saved = np.load(path)
@@ -43,6 +54,8 @@ def chunk_vectors(chunks, path=EMBEDDINGS_PATH):
     keys = [text_key(t) for t in texts]
     missing = {k: t for k, t in zip(keys, texts) if k not in cache}
     if missing:
+        if not embed_missing:
+            raise IndexNotBuilt(f"{len(missing)} of {len(keys)} chunks have no embedding")
         print(f"Embedding {len(missing)} new chunks")
         new = embed_texts(list(missing.values()))
         cache.update(zip(missing.keys(), new))
@@ -52,9 +65,9 @@ def chunk_vectors(chunks, path=EMBEDDINGS_PATH):
 
 
 class VectorIndex:
-    def __init__(self, chunks):
+    def __init__(self, chunks, embed_missing=False):
         self.chunks = chunks
-        self.vectors = chunk_vectors(chunks)  # unit length, so dot = cosine
+        self.vectors = chunk_vectors(chunks, embed_missing=embed_missing)  # unit length, so dot = cosine
 
     def search(self, query, num_results=50):
         scores = self.vectors @ embed_texts([query])[0]

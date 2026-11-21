@@ -31,4 +31,9 @@ MESSAGES = {
         "That change is not supported. Nothing was changed. Tell the user in "
         "one sentence and call no more tools."
     ),
+    "index_missing": (
+        "Search is not ready: the lesson index has not been built. Tell the "
+        "user in one sentence to ask the owner to run make index, and call no "
+        "more tools."
+    ),
 }

@@ -14,7 +14,7 @@ from ..business import (
     TopicQueue,
 )
 from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
-from ..integrations.search import search
+from ..integrations.search import IndexNotBuilt, search
 from .results import ToolResult
 
 # Policy for the agent, not a business rule: one question may search this many
@@ -73,7 +73,10 @@ class LickFinderTools:
         """
         if searches_this_run(ctx) >= MAX_SEARCHES_PER_QUESTION:
             return ToolResult.of("search_limit", next_step="stop")
-        return self._search(query, level=level)
+        try:
+            return self._search(query, level=level)
+        except IndexNotBuilt:
+            return ToolResult.of("index_missing", next_step="stop")
 
     def save_lesson(self, video_id: str, song: str, technique: str, key: str, level: str) -> ToolResult:
         """

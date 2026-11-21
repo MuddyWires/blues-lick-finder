@@ -46,3 +46,21 @@ def test_only_the_first_searches_run_when_several_are_requested_at_once(tools):
 
     ran = [not isinstance(r, ToolResult) for r in results]
     assert ran == [True, True, False]   # MAX_SEARCHES_PER_QUESTION is 2
+
+
+def test_a_missing_index_becomes_a_fixed_message_not_a_crash(tmp_path):
+    from lick_finder.agent import LickFinderTools
+    from lick_finder.integrations.search import IndexNotBuilt
+
+    def broken_search(query, level=None):
+        raise IndexNotBuilt("2535 of 2535 chunks have no embedding")
+
+    topics = tmp_path / "topics.txt"
+    topics.write_text("")
+    tools = LickFinderTools(practice_log_path=tmp_path / "log.json", topics_path=topics,
+                            search_fn=broken_search, store={})
+
+    result = tools.search_lessons(fake_ctx(), "hide away")
+
+    assert (result.status, result.next_step) == ("index_missing", "stop")
+    assert "2535" not in result.message  # internal details stay out of the reply
