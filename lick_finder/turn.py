@@ -5,13 +5,19 @@ from pydantic_ai.messages import ToolCallPart
 from .cost import calculate_cost
 
 
+def is_output_tool(name):
+    """The model "calls" a tool to give its structured answer. With several
+    output types the tools are named final_result_<Type>, so match the prefix."""
+    return name.startswith("final_result")
+
+
 def turn_summary(result, model):
     """Tools called, tokens and cost for one question."""
     tools = [
         p.tool_name
         for m in result.new_messages()
         for p in m.parts
-        if isinstance(p, ToolCallPart) and p.tool_name != "final_result"
+        if isinstance(p, ToolCallPart) and not is_output_tool(p.tool_name)
     ]
     u = result.usage
     return {

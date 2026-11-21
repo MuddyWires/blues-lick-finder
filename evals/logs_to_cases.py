@@ -69,7 +69,7 @@ def tools_called(messages):
         for m in messages
         if m.get("role") == "assistant"
         for p in m["parts"]
-        if p.get("type") == "tool_call" and p.get("name") != "final_result"
+        if p.get("type") == "tool_call" and not str(p.get("name")).startswith("final_result")
     ]
 
 

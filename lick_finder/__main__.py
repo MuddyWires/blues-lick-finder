@@ -4,7 +4,14 @@ import asyncio
 
 import logfire
 
-from .agent import AgentStreamRunner, LickFinderAgentConfig, LickFinderTools, create_agent
+from .agent import (
+    AgentStreamRunner,
+    LickFinderAgentConfig,
+    LickFinderTools,
+    create_agent,
+    present,
+    render_lessons,
+)
 from .cost import capture_usage, display_total_usage, total_cost
 from .monitoring import TRACE_URL, setup_monitoring
 from .turn import format_summary, turn_summary
@@ -13,7 +20,8 @@ from .turn import format_summary, turn_summary
 async def chat():
     setup_monitoring()
     config = LickFinderAgentConfig()
-    runner = AgentStreamRunner(create_agent(config, LickFinderTools()))
+    tools = LickFinderTools()
+    runner = AgentStreamRunner(create_agent(config, tools))
     history = []
 
     print("Blues Lick Finder. Type a question, or 'quit' (or Ctrl-D) to exit.")
@@ -31,6 +39,9 @@ async def chat():
             result = await runner.run(question, message_history=history)
             if result is None:  # hit the request limit; the runner printed why
                 continue
+            lessons = render_lessons(present(result.output, tools.lesson_store()))
+            if lessons:
+                print(f"\n\n{lessons}")
             capture_usage(config.model, result)
             history = result.all_messages()
             print(f"\n[{format_summary(turn_summary(result, config.model))}]")

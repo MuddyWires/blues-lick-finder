@@ -13,6 +13,7 @@ from ..business import (
     TopicAlreadyQueued,
     TopicQueue,
 )
+from ..business.lessons import get_store
 from ..integrations.search import IndexNotBuilt, search
 from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from .results import ToolResult
@@ -55,8 +56,13 @@ class LickFinderTools:
         self.practice_log_path = practice_log_path
         self.topics_path = topics_path
         self._search = search_fn
+        self._store = store
         self.log = PracticeLog(practice_log_path, catalog=store)
         self.topics = TopicQueue(topics_path)
+
+    def lesson_store(self):
+        """The lesson data used to check and fill in recommended lessons."""
+        return self._store if self._store is not None else get_store()
 
     def search_lessons(
         self, ctx: RunContext, query: str, level: str | None = None

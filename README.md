@@ -24,7 +24,7 @@ You chat with the agent ("best lesson for the Hide Away intro", "easy BB King li
 | `queue_topic` | Queues a new search topic for the next data fetch when nothing relevant is stored. |
 | `change_saved_lesson` | Stub: delete, edit and un-like are not supported yet, and the agent says so. |
 
-Text inside search results is treated as data, never as instructions. The agent declines off-topic questions without calling any tool, and never reveals its instructions.
+Text inside search results is treated as data, never as instructions. Recommended lessons come back as structured output (video IDs and reasons). Code looks every ID up in the lesson data, fills in the title, channel, level and link itself, and drops and flags any lesson that is not there; the model gets one retry first. The agent declines off-topic questions without calling any tool, and never reveals its instructions.
 
 ## Setup
 

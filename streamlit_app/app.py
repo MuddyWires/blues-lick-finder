@@ -28,13 +28,14 @@ dotenv.load_dotenv()
 from lick_finder.agent import (  # noqa: E402
     STUCK_MESSAGE,
     USAGE_LIMITS,
-    AgentResponse,
     LickFinderAgentConfig,
     LickFinderTools,
     create_agent,
+    present,
+    render,
 )
 from lick_finder.monitoring import SERVICE_NAME, TRACE_URL, setup_monitoring  # noqa: E402
-from lick_finder.turn import format_summary, turn_summary  # noqa: E402
+from lick_finder.turn import format_summary, is_output_tool, turn_summary  # noqa: E402
 
 st.set_page_config(page_title="Blues Lick Finder", page_icon="🎸")
 
@@ -77,7 +78,7 @@ def tool_calls(result):
         (p.tool_name, p.args)
         for m in result.new_messages()
         for p in m.parts
-        if isinstance(p, ToolCallPart) and p.tool_name != "final_result"
+        if isinstance(p, ToolCallPart) and not is_output_tool(p.tool_name)
     ]
 
 
@@ -146,7 +147,6 @@ if question := st.chat_input("Ask about a blues lick or lesson…"):
                         agent.run(
                             question,
                             message_history=ss.history,
-                            output_type=AgentResponse,
                             usage_limits=USAGE_LIMITS,
                         )
                     )
@@ -165,10 +165,11 @@ if question := st.chat_input("Ask about a blues lick or lesson…"):
             "trace_url": f"{TRACE_URL}?q=trace_id%3D%27{trace_id}%27",
             "trace_id": trace_id,
         }
-        st.write(result.output.answer)
+        text = render(present(result.output, tools.lesson_store()))
+        st.write(text)
         show_details(details)
     ss.history = result.all_messages()
-    ss.messages.append({"role": "assistant", "content": result.output.answer, "details": details})
+    ss.messages.append({"role": "assistant", "content": text, "details": details})
     ss.totals["cost"] += s["cost"] or 0.0
     ss.totals["input"] += s["input"]
     ss.totals["output"] += s["output"]

@@ -32,14 +32,15 @@ from pydantic_ai.exceptions import UsageLimitExceeded
 
 from lick_finder.agent import (
     USAGE_LIMITS,
-    AgentResponse,
     LickFinderAgentConfig,
     LickFinderTools,
     create_agent,
+    present,
+    render,
 )
 from lick_finder.integrations.youtube_data import read_cache
 from lick_finder.paths import PRACTICE_LOG_PATH, TOPICS_PATH
-from lick_finder.turn import turn_summary
+from lick_finder.turn import is_output_tool, turn_summary
 from tests.llm.cost_tracker import display_total_usage
 from tests.llm.judge import judge
 from tests.llm.utils import collect_tool_returns, collect_tools
@@ -85,7 +86,7 @@ def tool_calls(result):
         (p.tool_name, p.args)
         for m in result.new_messages()
         for p in m.parts
-        if p.part_kind == "tool-call" and p.tool_name != "final_result"
+        if p.part_kind == "tool-call" and not is_output_tool(p.tool_name)
     ]
 
 
@@ -121,6 +122,8 @@ async def run_one(row, agent_cfg, sem, use_judge):
             seconds=0.0,
             judge="",
             judge_reason="",
+            lessons_returned=0,
+            lessons_dropped=0,
             saved_added=0,
             topics_queued="",
             auto_check="",
@@ -137,7 +140,6 @@ async def run_one(row, agent_cfg, sem, use_judge):
                 r = await agent.run(
                     turn,
                     message_history=history,
-                    output_type=AgentResponse,
                     usage_limits=USAGE_LIMITS,
                 )
                 history = r.all_messages()
@@ -146,9 +148,9 @@ async def run_one(row, agent_cfg, sem, use_judge):
             result = await agent.run(
                 row["question"],
                 message_history=history,
-                output_type=AgentResponse,
                 usage_limits=USAGE_LIMITS,
             )
+            shown = present(result.output, tools.lesson_store())
             summary = turn_summary(result, agent_cfg.model)
             calls = tool_calls(result)
             problems = check(
@@ -159,7 +161,9 @@ async def run_one(row, agent_cfg, sem, use_judge):
             out.update(
                 tools_called=" > ".join(summary["tools"]),
                 tool_args=" || ".join(f"{n}({a})" for n, a in calls),
-                answer=result.output.answer,
+                answer=render(shown),
+                lessons_returned=len(shown.lessons),
+                lessons_dropped=len(shown.dropped),
                 input_tokens=summary["input"],
                 output_tokens=summary["output"],
                 cost_usd=round(summary["cost"] or 0, 6),
@@ -172,7 +176,7 @@ async def run_one(row, agent_cfg, sem, use_judge):
                 messages = result.new_messages()
                 fb = await judge(
                     [row["expected_behavior"]],
-                    output=result.output.model_dump_json(),
+                    output=render(shown),
                     tool_calls=[str(t) for t in collect_tools(messages)],
                     tool_results=[str(t) for t in collect_tool_returns(messages)],
                 )

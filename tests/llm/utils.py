@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from lick_finder.agent import AgentStreamRunner
+from lick_finder.turn import is_output_tool
 from tests.llm.cost_tracker import capture_usage
 
 
@@ -20,7 +21,7 @@ def collect_tools(messages):
             if p.part_kind != "tool-call":
                 continue
 
-            if p.tool_name == "final_result":
+            if is_output_tool(p.tool_name):
                 continue
 
             tool_calls.append(ToolCall(p.tool_name, p.args))
@@ -43,7 +44,7 @@ def collect_tool_returns(messages):
             if p.part_kind != "tool-return":
                 continue
 
-            if p.tool_name == "final_result":
+            if is_output_tool(p.tool_name):
                 continue
 
             returns.append(ToolReturn(p.tool_name, p.content))

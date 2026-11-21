@@ -96,7 +96,19 @@ class LessonPick(BaseModel):
     )
 
 
+class Reply(BaseModel):
+    """Use this for every reply that recommends no lesson: saving, history, a refusal, a question back to the user."""
+
+    answer: str = Field(
+        description=(
+            "The conversational reply to the user, in plain text. Short: answer what was asked."
+        )
+    )
+
+
 class AgentResponse(BaseModel):
+    """Use this only when you recommend lessons from search results."""
+
     answer: str = Field(
         description=(
             "The conversational reply to the user, in plain text. Short: answer what was asked."

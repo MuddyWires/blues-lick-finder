@@ -8,6 +8,7 @@ from .agent import (
     LickFinderAgentConfig,
     create_agent,
 )
+from .present import Presented, present, render, render_lessons
 from .tools import LickFinderTools
 
 __all__ = [
@@ -17,5 +18,9 @@ __all__ = [
     "AgentStreamRunner",
     "LickFinderAgentConfig",
     "LickFinderTools",
+    "Presented",
     "create_agent",
+    "present",
+    "render",
+    "render_lessons",
 ]

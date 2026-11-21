@@ -1,22 +1,25 @@
 from dataclasses import dataclass
 
 from jaxn import JSONParserHandler, StreamingJSONParser
-from pydantic import BaseModel
-from pydantic_ai import Agent
+from pydantic_ai import Agent, ModelRetry, RunContext
 from pydantic_ai.exceptions import UsageLimitExceeded
 from pydantic_ai.messages import FunctionToolCallEvent
+from pydantic_ai.models import Model
 from pydantic_ai.usage import UsageLimits
 
+from ..models import AgentResponse, Reply
+from ..turn import is_output_tool
 from .tools import LickFinderTools
-
-
-class AgentResponse(BaseModel):
-    answer: str
-
 
 # Normal questions use 2-3 model requests; this stops a stuck tool loop early.
 USAGE_LIMITS = UsageLimits(request_limit=8)
 STUCK_MESSAGE = "Sorry, I got stuck on that one. Please try rephrasing your question."
+# A constant, like the tool messages: the model's own text is never echoed back to it.
+UNKNOWN_LESSON_MESSAGE = (
+    "Some video_ids in `lessons` are not in the lesson data. Use only video_ids "
+    "exactly as returned by search_lessons in this conversation, or leave "
+    "`lessons` empty."
+)
 
 
 AGENT_INSTRUCTIONS = """
@@ -88,6 +91,14 @@ Suggesting what to practice (from get_history, no extra tool):
 - viewed recently, not liked yet -> "still learning, keep going"
 - liked, not viewed in 2+ weeks -> "worth a refresh"
 
+Answer format:
+Give your answer with the Reply output, unless you are recommending lessons.
+When you recommend lessons, use the AgentResponse output: `lessons` lists them,
+best first, each with the video_id exactly as search_lessons returned it and one
+sentence on why it teaches well. The app fills in each lesson's title, channel,
+level and link from its own data, so don't repeat titles, links or levels in
+`answer`. Never type a video_id from memory.
+
 General:
 - Only me uses this agent for now.
 - Stay on topic. You only help with blues guitar lessons and the practice
@@ -109,7 +120,7 @@ General:
 
 @dataclass
 class LickFinderAgentConfig:
-    model: str = "openai:gpt-5.4-mini"
+    model: str | Model = "openai:gpt-5.4-mini"
     name: str = "lick_finder"
     instructions: str = AGENT_INSTRUCTIONS
 
@@ -125,12 +136,29 @@ def create_agent(config: LickFinderAgentConfig, tools: LickFinderTools) -> Agent
         tools.change_saved_lesson,
     ]
 
-    return Agent(
+    agent = Agent(
         name=config.name,
         model=config.model,
         instructions=config.instructions,
         tools=agent_tools,
+        output_type=[Reply, AgentResponse],
     )
+
+    @agent.output_validator
+    def lessons_are_in_the_catalog(
+        ctx: RunContext, response: Reply | AgentResponse
+    ) -> Reply | AgentResponse:
+        """Ask the model once to fix video_ids that are not in our lesson data.
+        If it still gets them wrong, pass the answer on: present() drops those
+        lessons and flags them, so nothing unchecked reaches the user."""
+        store = tools.lesson_store()
+        if ctx.retry < 1 and any(
+            pick.video_id not in store for pick in getattr(response, "lessons", [])
+        ):
+            raise ModelRetry(UNKNOWN_LESSON_MESSAGE)
+        return response
+
+    return agent
 
 
 class AnswerStreamHandler(JSONParserHandler):
@@ -155,7 +183,6 @@ class AgentStreamRunner:
             async with self.agent.iter(
                 user_prompt,
                 message_history=message_history,
-                output_type=AgentResponse,
                 usage_limits=USAGE_LIMITS,
             ) as agent_run:
                 async for node in agent_run:
@@ -176,7 +203,7 @@ class AgentStreamRunner:
         async with node.stream(agent_run.ctx) as stream:
             async for response in stream.stream_response():
                 for part in response.parts:
-                    if part.part_kind != "tool-call" or part.tool_name != "final_result":
+                    if part.part_kind != "tool-call" or not is_output_tool(part.tool_name):
                         continue
                     args_new = part.args
                     args_new_chunk = args_new[len(args_so_far) :]

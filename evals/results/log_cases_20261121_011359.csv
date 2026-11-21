@@ -1,0 +1,7 @@
+id,category,use_case,seed,setup,question,expected_behavior,expected_tools,forbidden_tools,logged_tools,trace_id
+66,from_logs,logged,default,,What is a good first lesson for BB King box licks? Keep it short.,,,,search_lessons,01a1ede4ae9e80d824ddff61887fb6a3
+67,from_logs,logged,default,,what is a good beginner bb king solo lesson?,,,,search_lessons,01a1ede514080767a22947d7c9a7b4a4
+68,from_logs,logged,default,,beginner bb king solo lesson,,,,search_lessons,01a1ee137abda57490e7fa66f7e14c32
+69,from_logs,logged,default,,bb king east lick,,,,search_lessons|search_lessons,01a1ee3453660301148e7ad6ca488ebb
+70,from_logs,logged,default,,bb king easy lesson,,,,search_lessons,01a1ee3b4375a578fbe8539581581d8b
+71,from_logs,logged,default,,"Easy BB King licks, I'm a beginner",,,,search_lessons|search_lessons,01a1ee3cbd8c47b6756881dc046f45c9
