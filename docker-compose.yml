@@ -1,32 +1,31 @@
+# One image for every service: built once from ./Dockerfile and tagged below.
+x-app: &app
+  build: .
+  image: blues-lick-finder:local
+  env_file: .env
+  volumes:
+    - ./data:/app/data
+
 services:
   # The agent's Streamlit chat. `docker compose up --build`, then open
-  # http://localhost:8501. Needs a .env (copy .env.example) and a data/ folder
-  # with lessons.json (see `fetch` below).
+  # http://localhost:8501. Needs a .env (copy .env.example) and an indexed data/
+  # folder (see `fetch` and `index` below).
   app:
-    build: .
+    <<: *app
     ports:
       - "127.0.0.1:8501:8501"   # localhost only: the app has no login
-    env_file: .env
-    volumes:
-      - ./data:/app/data
     restart: unless-stopped
 
   # Fetches lesson topics from data/topics.txt into data/lessons.json.
   # Not started by `up`: docker compose --profile fetch run --rm fetch
   fetch:
-    build: .
+    <<: *app
     command: ["python", "-m", "lick_finder.integrations.youtube_data"]
-    env_file: .env
-    volumes:
-      - ./data:/app/data
     profiles: ["fetch"]
 
   # Labels new lessons and embeds new chunks into data/. Run it after `fetch`:
   # docker compose --profile fetch run --rm index
   index:
-    build: .
+    <<: *app
     command: ["python", "-m", "lick_finder.integrations.index"]
-    env_file: .env
-    volumes:
-      - ./data:/app/data
     profiles: ["fetch"]
