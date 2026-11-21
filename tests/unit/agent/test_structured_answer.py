@@ -43,13 +43,16 @@ async def ask(tools, *replies):
 
 
 def retry_messages(requests):
+    """The text the model was shown when its output was sent back for a retry.
+    Older pydantic-ai versions send it as a RetryPromptPart, newer ones as a
+    ToolReturnPart marked as a retry; accept both."""
     return [
         part.content
         for request in requests
         for message in request
         if isinstance(message, ModelRequest)
         for part in message.parts
-        if isinstance(part, RetryPromptPart)
+        if isinstance(part, RetryPromptPart) or getattr(part, "outcome", None) == "retried"
     ]
 
 
