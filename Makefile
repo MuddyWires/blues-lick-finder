@@ -1,4 +1,4 @@
-.PHONY: help install index test test-llm run app label eval judge retrieval logs-to-cases fetch docker-up docker-fetch docker-index
+.PHONY: help install index lint format test test-llm run app label eval judge retrieval logs-to-cases fetch docker-up docker-fetch docker-index
 
 help:            ## list the targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/ -/'
@@ -8,6 +8,13 @@ install:         ## install dependencies (including the Streamlit app group)
 
 index:           ## label new lessons and embed new chunks (the only step that calls OpenAI to prepare data)
 	uv run python -m lick_finder.integrations.index
+
+lint:            ## ruff lint and format check (what CI runs)
+	uv run ruff check .
+	uv run ruff format --check .
+
+format:          ## format the code with ruff
+	uv run ruff format .
 
 test:            ## free tests: no model calls, no network
 	uv run pytest

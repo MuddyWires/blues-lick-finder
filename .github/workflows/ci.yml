@@ -1,18 +1,44 @@
-name: tests
+name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - name: Install dependencies
-        run: uv sync --frozen
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
       - name: Free tests (no model calls, no network)
         # No API key: the free tests never call OpenAI, and clients are built on first use.
         run: uv run pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image (not pushed)
+        run: docker build -t blues-lick-finder:ci .
