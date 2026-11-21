@@ -1,6 +1,6 @@
 # RFC: Agent tools for the Blues Lick Finder
 
-- **Status:** Implemented (all six tools), updated 2026-11-16
+- **Status:** Implemented (all seven tools), updated 2026-11-21
 - **Date:** 2026-10-07
 - **Scope:** Tool design for turning the week 1 RAG pipeline into a tool-calling agent. Code is in `lick_finder/`.
 
@@ -60,7 +60,7 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 - **Replay goes through a tool.** Opening a URL directly would work, but the agent could not record the view, and (g) depends on views.
 - **No `user_id` yet.** History lives in one file (e.g. `data/practice_log.json`). When other users arrive, `user_id` becomes one extra input on tools 2–5.
 - **Search is vector-based by default.** Chunks are embedded with `text-embedding-3-small` (cached in `data/chunk_embeddings.npz`). See "Retrieval" below for the eval.
-- **Starting the agent never fetches from YouTube.** It reads the cache only. Fetching is the separate command `python -m lick_finder.integrations.youtube_data`, so the "queue, don't fetch live" decision also holds at startup.
+- **Starting the agent never fetches from YouTube.** It reads the cache only. Fetching is the separate command `python -m lick_finder.integrations.youtube_data`, so the "queue, don't fetch live" decision also holds at startup. It never labels or embeds either: that is `make index` (`lick_finder.integrations.index`), so a question cannot trigger hundreds of OpenAI calls. If the index is missing, `search_lessons` answers with a fixed message instead.
 
 ## Alternatives rejected
 
@@ -69,7 +69,7 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 - **`search_lessons` fetching from YouTube on its own:** hides slow, failure-prone work inside what looks like a fast search.
 - **`replay_lesson` that only returns a URL:** replaced by `open_lesson`, which also records the view.
 - **A "theory" tool for questions like mixolydian:** the LLM can explain theory without a tool.
-- **TF-IDF + vector hybrid as the default:** equal-weight fusion scored below vector alone (hit@5 0.56 against 0.64), and down-weighting TF-IDF only approached vector (0.63). `tfidf` and `hybrid` stay available as `method=` options.
+- **TF-IDF + vector hybrid as the default:** equal-weight fusion scored below vector alone (hit@5 0.58 against 0.64), and down-weighting TF-IDF only matched vector's hit rate (0.64) with a lower MRR (0.43 against 0.48). `tfidf` and `hybrid` stay available as `method=` options.
 
 ## Data prerequisites
 
@@ -77,7 +77,7 @@ No extra tool. The agent calls `get_history` and infers a suggestion from the sa
 
 | Data | Needed for | Result |
 |---|---|---|
-| `level` per video (beginner / intermediate / advanced / unclear) | `search_lessons(level=...)`, requests b and "Magic Sam beginner licks" | One `gpt-5.4-mini` call per video over title, tags, start of transcript, and comments, cached in `data/levels.json`. 655 lessons: 310 intermediate, 181 beginner, 132 unclear, 32 advanced (about $0.40). Unclear lessons stay eligible when a level is requested. |
+| `level` per video (beginner / intermediate / advanced / unclear) | `search_lessons(level=...)`, requests b and "Magic Sam beginner licks" | Labelled offline by `make index`, 10 videos per `gpt-5.4-mini` call (title, tags, start of transcript and comments), cached in `data/levels.json`. 750 lessons: 342 intermediate, 194 beginner, 180 unclear, 34 advanced (about $0.40 for the whole catalog). Unclear lessons stay eligible when a level is requested. |
 
 Timestamps are still out of scope. The agent gives a timestamp only when a viewer comment states it, quoted word for word, and never guesses one. Deep links to specific licks were considered and parked: they need ~53 minutes of transcript re-fetching, and a cheaper option exists (show the agent a video's chapters, already stored in `lessons.json`).
 
@@ -87,10 +87,13 @@ Measured on 200 questions an LLM wrote from sampled chunks (`python -m evals.gen
 
 | Method | hit@5 | MRR |
 |---|---|---|
-| tfidf | 0.34 | 0.24 |
-| vector (default) | 0.64 | 0.46 |
-| hybrid (equal weights) | 0.56 | 0.38 |
-| hybrid@0.25 (TF-IDF weighted 0.25) | 0.63 | 0.43 |
+| tfidf | 0.36 | 0.24 |
+| vector (default) | 0.64 | 0.48 |
+| hybrid (equal weights) | 0.58 | 0.40 |
+| hybrid@0.5 (TF-IDF weighted 0.5) | 0.60 | 0.41 |
+| hybrid@0.25 (TF-IDF weighted 0.25) | 0.64 | 0.43 |
+
+A second, hand-written set (`python -m evals.retrieval`: 31 questions, split into dev and a held-out test set) gives a mixed picture: hybrid finds a relevant lesson more often on dev, tfidf on test, and vector has the best MRR on both. The README's Evaluation section has the full table and the reasoning for keeping vector as the default.
 
 A 14-query song-name check (`python -m evals.named`) found no case where TF-IDF helps (hit@5 1.00 for every method). Caveat: the questions are machine-written, so the numbers compare methods and are not absolute accuracy.
 
@@ -100,22 +103,28 @@ A 14-query song-name check (`python -m evals.named`) found no case where TF-IDF 
 2. **Next:** `open_lesson` and `like_lesson` (full g and h). *Done.*
 3. **Then:** `queue_topic`. *Done.*
 4. **In parallel:** compute a level for each video. *Done.*
-5. **Also done:** vector search, the `lick_finder/` package, the `python -m lick_finder` chat, and 20 tests.
+5. **Also done:** vector search, the `lick_finder/` package, the `python -m lick_finder` chat, and 129 free tests (plus 12 real-model tests).
+6. **Later:** the Streamlit app, the evals (scenarios, LLM judge, labeling app, retrieval), Logfire monitoring, Docker and CI. The README covers them.
 
 ## Implementation
 
 ```
-lick_finder/   search.py, tools.py, agent.py, paths.py, levels.py, embeddings.py, youtube_data.py
-evals/         generated.py (LLM-written questions), named.py (song-name queries)
-tests/         tools and search helpers; no OpenAI calls
+lick_finder/
+  agent/          prompt, tools, tool messages (what the model sees)
+  business/       practice log, lesson catalog, topic queue (no LLM knowledge)
+  integrations/   YouTube fetching, embeddings, level labelling, search, offline index
+streamlit_app/    web chat with thumbs up/down feedback
+reports/          usage report over the Logfire traces
+evals/            scenarios, batch runner, LLM judge, labeling app, retrieval eval
+tests/            unit/ (free) and llm/ (real model)
 ```
 
 - Chat with the agent: `uv run python -m lick_finder`
-- Fetch new topics from `data/topics.txt`: `uv run python -m lick_finder.integrations.youtube_data`
-- Run the evals: `uv run python -m evals.generated 200`, `uv run python -m evals.named`
-- Tests: `uv run pytest`
+- Fetch new topics from `data/topics.txt`: `make fetch`, then label and embed them with `make index`
+- Run the evals: `make retrieval` (search alone), `make eval` (the agent), `uv run python -m evals.generated 200`, `uv run python -m evals.named`
+- Tests: `make test`
 
-The first start after a fetch labels new lessons and embeds new chunks (small OpenAI calls, cached on disk).
+After a fetch, run `make index` to label new lessons and embed new chunks (cached on disk). The app never does it.
 
 ## Open questions
 

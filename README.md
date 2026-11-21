@@ -84,6 +84,7 @@ Free tests (no model, no network) run by default and in CI. Tests that call a re
 
 ```
 make test                          # uv run pytest, all free tests
+make lint                          # ruff lint + format check, as in CI
 uv run pytest tests/unit/business  # one layer by folder (also -m business, agent, integrations, reports, models)
 make test-llm                      # also the real-model tests
 ```
@@ -146,4 +147,4 @@ Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It 
 
 ## Notebooks
 
-`notebooks/01-setup.ipynb` is a smoke test that confirms your environment works. The earlier RAG and search-evaluation notebooks are kept locally and are not in the repo; their work now lives in `lick_finder/integrations/` and `evals/`.
+`notebooks/01-setup.ipynb` is a smoke test that confirms your environment works. Jupyter is its own dependency group: `uv run --group notebooks jupyter notebook`. The earlier RAG and search-evaluation notebooks are kept locally and are not in the repo; their work now lives in `lick_finder/integrations/` and `evals/`.
