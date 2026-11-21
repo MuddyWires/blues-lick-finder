@@ -109,7 +109,12 @@ class JudgeEvaluation(BaseModel):
 
 
 def create_judge_agent(model: str = JUDGE_MODEL) -> Agent:
-    return Agent(name="label_judge", model=model, instructions=judge_instructions, output_type=JudgeEvaluation)
+    return Agent(
+        name="label_judge",
+        model=model,
+        instructions=judge_instructions,
+        output_type=JudgeEvaluation,
+    )
 
 
 def load_setups() -> dict[str, str]:

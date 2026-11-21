@@ -78,7 +78,9 @@ class LickFinderTools:
         except IndexNotBuilt:
             return ToolResult.of("index_missing", next_step="stop")
 
-    def save_lesson(self, video_id: str, song: str, technique: str, key: str, level: str) -> ToolResult:
+    def save_lesson(
+        self, video_id: str, song: str, technique: str, key: str, level: str
+    ) -> ToolResult:
         """
         Save a lesson to the practice history. Call only when the user
         chooses a specific lesson (e.g. "I'll practice this one"), never

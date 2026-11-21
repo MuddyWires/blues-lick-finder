@@ -151,7 +151,9 @@ def fetch_comments_and_chapters(video_ids):
         "no_warnings": True,
         "skip_download": True,
         "getcomments": True,
-        "extractor_args": {"youtube": {"max_comments": ["50", "50", "0", "0"], "comment_sort": ["top"]}},
+        "extractor_args": {
+            "youtube": {"max_comments": ["50", "50", "0", "0"], "comment_sort": ["top"]}
+        },
     }
 
     extras_by_video = {}
@@ -190,7 +192,9 @@ def load_lessons(path=DATA_PATH):
         documents += fetch_lessons([topic], RESULTS_PER_TOPIC, skip_ids=cached_ids)
         path.write_text(json.dumps(documents, indent=2))
 
-    missing = [doc["video_id"] for doc in documents if "comments" not in doc or "chapters" not in doc]
+    missing = [
+        doc["video_id"] for doc in documents if "comments" not in doc or "chapters" not in doc
+    ]
     if missing:
         print(f"Fetching comments/chapters for {len(missing)} videos")
         extras_by_video = fetch_comments_and_chapters(missing)

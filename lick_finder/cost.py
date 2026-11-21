@@ -17,7 +17,9 @@ def calculate_cost(model_name, input_tokens, output_tokens):
     prices = MODEL_PRICES.get(model_name.lower())
     if prices is None:
         return None
-    return (input_tokens / 1_000_000) * prices["input"] + (output_tokens / 1_000_000) * prices["output"]
+    return (input_tokens / 1_000_000) * prices["input"] + (output_tokens / 1_000_000) * prices[
+        "output"
+    ]
 
 
 def capture_usage(model, result):

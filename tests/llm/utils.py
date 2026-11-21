@@ -17,10 +17,10 @@ def collect_tools(messages):
 
     for m in messages:
         for p in m.parts:
-            if p.part_kind != 'tool-call':
+            if p.part_kind != "tool-call":
                 continue
 
-            if p.tool_name == 'final_result':
+            if p.tool_name == "final_result":
                 continue
 
             tool_calls.append(ToolCall(p.tool_name, p.args))
@@ -40,10 +40,10 @@ def collect_tool_returns(messages):
 
     for m in messages:
         for p in m.parts:
-            if p.part_kind != 'tool-return':
+            if p.part_kind != "tool-return":
                 continue
 
-            if p.tool_name == 'final_result':
+            if p.tool_name == "final_result":
                 continue
 
             returns.append(ToolReturn(p.tool_name, p.content))
@@ -52,7 +52,7 @@ def collect_tool_returns(messages):
 
 
 def get_model_name(agent):
-    return f'{agent.model.system}:{agent.model.model_name}'
+    return f"{agent.model.system}:{agent.model.model_name}"
 
 
 async def run_agent_test(agent, user_prompt, message_history=None):

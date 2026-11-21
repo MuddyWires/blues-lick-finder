@@ -135,8 +135,8 @@ def create_agent(config: LickFinderAgentConfig, tools: LickFinderTools) -> Agent
 
 class AnswerStreamHandler(JSONParserHandler):
     def on_value_chunk(self, path: str, field_name: str, chunk: str) -> None:
-        if path == '' and field_name == 'answer':
-            print(chunk, end='', flush=True)
+        if path == "" and field_name == "answer":
+            print(chunk, end="", flush=True)
 
 
 class AgentStreamRunner:
@@ -176,10 +176,10 @@ class AgentStreamRunner:
         async with node.stream(agent_run.ctx) as stream:
             async for response in stream.stream_response():
                 for part in response.parts:
-                    if part.part_kind != 'tool-call' or part.tool_name != 'final_result':
+                    if part.part_kind != "tool-call" or part.tool_name != "final_result":
                         continue
                     args_new = part.args
-                    args_new_chunk = args_new[len(args_so_far):]
+                    args_new_chunk = args_new[len(args_so_far) :]
                     args_so_far = args_new
                     parser.parse_incremental(args_new_chunk)
 

@@ -6,7 +6,9 @@ def test_a_plain_topic_is_a_youtube_search():
 
 
 def test_a_channel_handle_is_that_channels_videos_tab():
-    assert topic_url("channel:@guitarcompass", 10) == "https://www.youtube.com/@guitarcompass/videos"
+    assert (
+        topic_url("channel:@guitarcompass", 10) == "https://www.youtube.com/@guitarcompass/videos"
+    )
 
 
 def test_a_channel_id_is_that_channels_videos_tab():
@@ -16,11 +18,15 @@ def test_a_channel_id_is_that_channels_videos_tab():
 
 
 def test_whitespace_around_a_channel_ref_is_ignored():
-    assert topic_url("channel: @guitarcompass ", 10) == "https://www.youtube.com/@guitarcompass/videos"
+    assert (
+        topic_url("channel: @guitarcompass ", 10) == "https://www.youtube.com/@guitarcompass/videos"
+    )
 
 
 def test_load_topics_keeps_channel_lines_and_skips_comments_and_blanks(tmp_path):
     topics = tmp_path / "topics.txt"
-    topics.write_text("# a comment\n\nBB King box licks\n# Guitar Compass\nchannel:@guitarcompass\n")
+    topics.write_text(
+        "# a comment\n\nBB King box licks\n# Guitar Compass\nchannel:@guitarcompass\n"
+    )
 
     assert load_topics(topics) == ["BB King box licks", "channel:@guitarcompass"]

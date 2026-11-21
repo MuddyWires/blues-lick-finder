@@ -21,8 +21,19 @@ from reports.report_cli import get_client, load_menu
 
 RESULTS_DIR = Path(__file__).parent / "results"
 SCENARIOS = Path(__file__).parent / "scenarios.csv"
-FIELDS = ["id", "category", "use_case", "seed", "setup", "question",
-          "expected_behavior", "expected_tools", "forbidden_tools", "logged_tools", "trace_id"]
+FIELDS = [
+    "id",
+    "category",
+    "use_case",
+    "seed",
+    "setup",
+    "question",
+    "expected_behavior",
+    "expected_tools",
+    "forbidden_tools",
+    "logged_tools",
+    "trace_id",
+]
 
 # Static SQL, same rule as reports/menu.json: no user input goes into a query.
 SQL = (
@@ -46,13 +57,20 @@ def first_question(messages, new_index):
         return None
     for m in messages:
         if m.get("role") == "user":
-            return " ".join(p.get("content", "") for p in m["parts"] if p.get("type") == "text").strip()
+            return " ".join(
+                p.get("content", "") for p in m["parts"] if p.get("type") == "text"
+            ).strip()
     return None
 
 
 def tools_called(messages):
-    return [p["name"] for m in messages if m.get("role") == "assistant"
-            for p in m["parts"] if p.get("type") == "tool_call" and p.get("name") != "final_result"]
+    return [
+        p["name"]
+        for m in messages
+        if m.get("role") == "assistant"
+        for p in m["parts"]
+        if p.get("type") == "tool_call" and p.get("name") != "final_result"
+    ]
 
 
 def next_id():
@@ -67,7 +85,9 @@ def main():
 
     menu = load_menu()
     since = datetime.now(UTC) - timedelta(days=args.days)
-    rows = get_client().query_json_rows(SQL.replace("$SERVICE", menu["service"]), min_timestamp=since)["rows"]
+    rows = get_client().query_json_rows(
+        SQL.replace("$SERVICE", menu["service"]), min_timestamp=since
+    )["rows"]
 
     seen = {r["question"].strip().lower() for r in csv.DictReader(SCENARIOS.open(newline=""))}
     out, n = [], next_id()
@@ -77,10 +97,21 @@ def main():
         if not question or question.lower() in seen:
             continue
         seen.add(question.lower())
-        out.append({"id": n, "category": "from_logs", "use_case": "logged", "seed": "default", "setup": "",
-                    "question": question, "expected_behavior": "", "expected_tools": "",
-                    "forbidden_tools": "", "logged_tools": "|".join(tools_called(messages)),
-                    "trace_id": row["trace_id"]})
+        out.append(
+            {
+                "id": n,
+                "category": "from_logs",
+                "use_case": "logged",
+                "seed": "default",
+                "setup": "",
+                "question": question,
+                "expected_behavior": "",
+                "expected_tools": "",
+                "forbidden_tools": "",
+                "logged_tools": "|".join(tools_called(messages)),
+                "trace_id": row["trace_id"],
+            }
+        )
         n += 1
 
     RESULTS_DIR.mkdir(exist_ok=True)
@@ -89,8 +120,12 @@ def main():
         w = csv.DictWriter(f, fieldnames=FIELDS)
         w.writeheader()
         w.writerows(out)
-    print(f"{len(rows)} agent runs in the last {args.days} days -> {len(out)} new candidate questions")
-    print(f"Saved {path}\nFill in expected_behavior, review, then copy the rows you keep into evals/scenarios.csv.")
+    print(
+        f"{len(rows)} agent runs in the last {args.days} days -> {len(out)} new candidate questions"
+    )
+    print(
+        f"Saved {path}\nFill in expected_behavior, review, then copy the rows you keep into evals/scenarios.csv."
+    )
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ class JudgeCriterion(BaseModel):
     """
     Evaluation of a single test requirement or behavioral rule.
     """
+
     criterion_description: str = Field(
         description="The specific requirement or rule that the agent is being evaluated against."
     )
@@ -34,6 +35,7 @@ class JudgeFeedback(BaseModel):
     """
     The complete evaluation report from the judge agent, summarizing performance across all criteria.
     """
+
     criteria: list[JudgeCriterion] = Field(
         description="A collection of individual evaluations for each performance requirement provided in the test."
     )
@@ -44,10 +46,7 @@ class JudgeFeedback(BaseModel):
 
 def create_judge_agent():
     agent = Agent(
-        name="judge",
-        model=JUDGE_MODEL,
-        instructions=judge_instructions,
-        output_type=JudgeFeedback
+        name="judge", model=JUDGE_MODEL, instructions=judge_instructions, output_type=JudgeFeedback
     )
     return agent
 
@@ -79,10 +78,10 @@ async def judge(criteria, output, tool_calls, tool_results):
     """Run the judge on plain strings, so it can also be tested on its own."""
     judge_agent = create_judge_agent()
     judge_user_prompt = judge_user_prompt_template.format(
-        criteria='\n'.join(criteria),
+        criteria="\n".join(criteria),
         output=output,
-        tool_calls='\n'.join(tool_calls),
-        tool_results='\n'.join(tool_results),
+        tool_calls="\n".join(tool_calls),
+        tool_results="\n".join(tool_results),
     )
 
     judge_result = await judge_agent.run(judge_user_prompt)
@@ -101,7 +100,7 @@ async def assert_criteria(result, criteria):
         tool_results=[str(tr) for tr in collect_tool_returns(messages)],
     )
 
-    print('judge feedback:')
+    print("judge feedback:")
     print(feedback.feedback)
 
     for criterion in feedback.criteria:

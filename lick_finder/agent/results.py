@@ -11,8 +11,15 @@ from pydantic import BaseModel
 from .tool_messages import MESSAGES
 
 Status = Literal[
-    "ok", "already_saved", "not_in_catalog", "not_saved",
-    "queued", "already_queued", "invalid_topic", "search_limit", "unsupported",
+    "ok",
+    "already_saved",
+    "not_in_catalog",
+    "not_saved",
+    "queued",
+    "already_queued",
+    "invalid_topic",
+    "search_limit",
+    "unsupported",
     "index_missing",
 ]
 NextStep = Literal["none", "ask_user", "stop"]

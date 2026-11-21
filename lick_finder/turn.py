@@ -25,6 +25,5 @@ def turn_summary(result, model):
 def format_summary(s):
     cost = f"${s['cost']:.4f}" if s["cost"] is not None else "n/a"
     return (
-        f"tools: {', '.join(s['tools']) or 'none'} | "
-        f"{s['input']} in / {s['output']} out | {cost}"
+        f"tools: {', '.join(s['tools']) or 'none'} | {s['input']} in / {s['output']} out | {cost}"
     )

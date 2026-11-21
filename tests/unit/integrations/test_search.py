@@ -7,8 +7,12 @@ def chunk(video_id, start=0, level="intermediate"):
 
 
 def test_filter_level_keeps_matching_and_unclear():
-    results = [chunk("a", level="beginner"), chunk("b", level="advanced"),
-               chunk("c", level="unclear"), chunk("d", level="intermediate")]
+    results = [
+        chunk("a", level="beginner"),
+        chunk("b", level="advanced"),
+        chunk("c", level="unclear"),
+        chunk("d", level="intermediate"),
+    ]
     assert [r["video_id"] for r in filter_level(results, "beginner")] == ["a", "c"]
 
 
@@ -20,7 +24,8 @@ def test_filter_level_without_a_level_passes_everything():
 def test_best_chunk_per_video_keeps_the_first_chunk_of_each_video():
     results = [chunk("a", 0), chunk("a", 1500), chunk("b", 0), chunk("a", 3000)]
     assert [(r["video_id"], r["start"]) for r in best_chunk_per_video(results)] == [
-        ("a", 0), ("b", 0)
+        ("a", 0),
+        ("b", 0),
     ]
 
 

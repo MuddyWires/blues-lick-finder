@@ -62,8 +62,6 @@ def filter_level(results, level):
 
 def search(query, level=None, method="vector"):
     engine = get_engine()
-    results = retrieve(
-        engine.index, engine.vector_index, query, method, 200 if level else 50
-    )
+    results = retrieve(engine.index, engine.vector_index, query, method, 200 if level else 50)
     # Keep only the best chunk per video, so we return 5 different videos.
     return best_chunk_per_video(filter_level(results, level))

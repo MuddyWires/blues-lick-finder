@@ -41,16 +41,19 @@ def test_a_comment_line_is_not_a_queued_topic(queue):
     assert lines(queue)[-1] == "comment line"
 
 
-@pytest.mark.parametrize("topic", [
-    "",
-    "   ",
-    "two\nlines",
-    "# a comment",
-    "channel:@somebody",
-    "CHANNEL:UC123",
-    "tab\tseparated",
-    "x" * 101,
-])
+@pytest.mark.parametrize(
+    "topic",
+    [
+        "",
+        "   ",
+        "two\nlines",
+        "# a comment",
+        "channel:@somebody",
+        "CHANNEL:UC123",
+        "tab\tseparated",
+        "x" * 101,
+    ],
+)
 def test_add_rejects_anything_that_is_not_one_plain_search_phrase(queue, topic):
     before = queue.path.read_text()
 

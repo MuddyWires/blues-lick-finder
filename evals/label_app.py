@@ -15,7 +15,15 @@ from pathlib import Path
 import streamlit as st
 
 RESULTS_DIR = Path(__file__).parent / "results"
-LABEL_FIELDS = ["id", "category", "question", "label", "failure_category", "comments", "labelled_at"]
+LABEL_FIELDS = [
+    "id",
+    "category",
+    "question",
+    "label",
+    "failure_category",
+    "comments",
+    "labelled_at",
+]
 
 # Failure types seen in the first runs; "other" plus the comment box covers the rest.
 FAILURE_CATEGORIES = [
@@ -83,7 +91,9 @@ if not files:
     st.error("No results CSV in evals/results/. Run `uv run python -m evals.run_scenarios` first.")
     st.stop()
 
-results_file = st.sidebar.selectbox("Select results file", files, format_func=lambda f: str(f.relative_to(RESULTS_DIR)))
+results_file = st.sidebar.selectbox(
+    "Select results file", files, format_func=lambda f: str(f.relative_to(RESULTS_DIR))
+)
 out_path = labels_path(results_file)
 
 if st.session_state.get("loaded") != str(results_file):
@@ -91,7 +101,8 @@ if st.session_state.get("loaded") != str(results_file):
     st.session_state.rows = load_results(results_file)
     st.session_state.labels = load_labels(out_path)
     st.session_state.current = next(
-        (i for i, r in enumerate(st.session_state.rows) if r["id"] not in st.session_state.labels), 0
+        (i for i, r in enumerate(st.session_state.rows) if r["id"] not in st.session_state.labels),
+        0,
     )
 
 rows, labels = st.session_state.rows, st.session_state.labels
@@ -165,18 +176,28 @@ if existing:
 
 def commit(label, failure_category, comments):
     labels[row["id"]] = {
-        "id": row["id"], "category": row["category"], "question": row["question"],
-        "label": label, "failure_category": failure_category, "comments": comments,
+        "id": row["id"],
+        "category": row["category"],
+        "question": row["question"],
+        "label": label,
+        "failure_category": failure_category,
+        "comments": comments,
         "labelled_at": datetime.now().isoformat(timespec="seconds"),
     }
     save_labels(out_path, labels)
     nxt = find_next_unlabelled(rows, labels, st.session_state.current)
-    st.session_state.current = nxt if nxt is not None else min(st.session_state.current + 1, len(rows) - 1)
+    st.session_state.current = (
+        nxt if nxt is not None else min(st.session_state.current + 1, len(rows) - 1)
+    )
     st.rerun()
 
 
-comments = st.text_area("Comments (optional)", value=existing["comments"] if existing else "",
-                        height=80, key=f"comments_{row['id']}")
+comments = st.text_area(
+    "Comments (optional)",
+    value=existing["comments"] if existing else "",
+    height=80,
+    key=f"comments_{row['id']}",
+)
 
 good_col, bad_col = st.columns(2)
 with good_col:
@@ -189,10 +210,16 @@ with bad_col:
     default = None
     if existing and existing["failure_category"] in FAILURE_CATEGORIES:
         default = FAILURE_CATEGORIES.index(existing["failure_category"])
-    category = st.selectbox("Failure category (pick one, then click Bad)", FAILURE_CATEGORIES,
-                            index=default, placeholder="Choose a failure category",
-                            key=f"cat_{row['id']}")
-    if st.button("👎 Bad", use_container_width=True, disabled=category is None, key=f"bad_{row['id']}"):
+    category = st.selectbox(
+        "Failure category (pick one, then click Bad)",
+        FAILURE_CATEGORIES,
+        index=default,
+        placeholder="Choose a failure category",
+        key=f"cat_{row['id']}",
+    )
+    if st.button(
+        "👎 Bad", use_container_width=True, disabled=category is None, key=f"bad_{row['id']}"
+    ):
         commit("bad", category, comments)
 
 # ── Reset ───────────────────────────────────────────────────────────────────

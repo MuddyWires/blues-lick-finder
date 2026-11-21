@@ -45,7 +45,7 @@ def test_only_the_first_searches_run_when_several_are_requested_at_once(tools):
     results = [tools.search_lessons(parallel_ctx(i), "q") for i in range(3)]
 
     ran = [not isinstance(r, ToolResult) for r in results]
-    assert ran == [True, True, False]   # MAX_SEARCHES_PER_QUESTION is 2
+    assert ran == [True, True, False]  # MAX_SEARCHES_PER_QUESTION is 2
 
 
 def test_a_missing_index_becomes_a_fixed_message_not_a_crash(tmp_path):
@@ -57,8 +57,12 @@ def test_a_missing_index_becomes_a_fixed_message_not_a_crash(tmp_path):
 
     topics = tmp_path / "topics.txt"
     topics.write_text("")
-    tools = LickFinderTools(practice_log_path=tmp_path / "log.json", topics_path=topics,
-                            search_fn=broken_search, store={})
+    tools = LickFinderTools(
+        practice_log_path=tmp_path / "log.json",
+        topics_path=topics,
+        search_fn=broken_search,
+        store={},
+    )
 
     result = tools.search_lessons(fake_ctx(), "hide away")
 

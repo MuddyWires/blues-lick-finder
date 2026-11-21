@@ -14,8 +14,13 @@ DOCS = [
             {"start_time": 95, "title": "The turnaround"},
         ],
     },
-    {"video_id": "bare", "title": "No extras", "channel": "Other", "duration_sec": None,
-     "transcript": None},
+    {
+        "video_id": "bare",
+        "title": "No extras",
+        "channel": "Other",
+        "duration_sec": None,
+        "transcript": None,
+    },
 ]
 LEVELS = {"full": {"level": "beginner", "reason": "slow"}}
 

@@ -5,8 +5,13 @@ from lick_finder import models
 from lick_finder.models import AgentResponse, LessonLabels, LessonPick, Quote
 
 ALL_MODELS = [
-    models.Quote, models.LessonPick, models.AgentResponse, models.Chapter,
-    models.LessonFacts, models.LessonLabels, models.RecommendedLesson,
+    models.Quote,
+    models.LessonPick,
+    models.AgentResponse,
+    models.Chapter,
+    models.LessonFacts,
+    models.LessonLabels,
+    models.RecommendedLesson,
 ]
 
 

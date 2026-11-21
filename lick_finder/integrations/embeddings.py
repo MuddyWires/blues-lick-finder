@@ -14,7 +14,6 @@ EMBED_MODEL = "text-embedding-3-small"
 BATCH_SIZE = 100
 
 
-
 class IndexNotBuilt(RuntimeError):
     """Some chunks have no embedding yet. Run `make index` to build them."""
 
@@ -35,7 +34,7 @@ def text_key(text):
 def embed_texts(texts):
     vectors = []
     for i in range(0, len(texts), BATCH_SIZE):
-        resp = get_client().embeddings.create(model=EMBED_MODEL, input=texts[i:i + BATCH_SIZE])
+        resp = get_client().embeddings.create(model=EMBED_MODEL, input=texts[i : i + BATCH_SIZE])
         vectors += [d.embedding for d in resp.data]
     return np.array(vectors, dtype=np.float32)
 
@@ -67,7 +66,9 @@ def chunk_vectors(chunks, path=EMBEDDINGS_PATH, embed_missing=False):
 class VectorIndex:
     def __init__(self, chunks, embed_missing=False):
         self.chunks = chunks
-        self.vectors = chunk_vectors(chunks, embed_missing=embed_missing)  # unit length, so dot = cosine
+        self.vectors = chunk_vectors(
+            chunks, embed_missing=embed_missing
+        )  # unit length, so dot = cosine
 
     def search(self, query, num_results=50):
         scores = self.vectors @ embed_texts([query])[0]
@@ -94,9 +95,10 @@ def retrieve(index, vector_index, query, method="hybrid", num_results=50):
     if method == "vector":
         return vector_index.search(query, num_results)
     tfidf_weight = float(method.split("@")[1]) if "@" in method else 1.0
-    return rrf([index.search(query, num_results=num_results),
-                vector_index.search(query, num_results)],
-               weights=[tfidf_weight, 1.0])[:num_results]
+    return rrf(
+        [index.search(query, num_results=num_results), vector_index.search(query, num_results)],
+        weights=[tfidf_weight, 1.0],
+    )[:num_results]
 
 
 def best_chunk_per_video(results, limit=5):

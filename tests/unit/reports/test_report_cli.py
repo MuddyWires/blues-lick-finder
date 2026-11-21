@@ -28,8 +28,16 @@ def test_unknown_placeholder_rejected(tmp_path):
         load_menu(path)
 
 
-@pytest.mark.parametrize("bad", ["", "abc", "01a1ede514080767a22947d7c9a7b4a4' or '1'='1",
-                                 "g" * 32, "01a1ede514080767a22947d7c9a7b4a4a"])
+@pytest.mark.parametrize(
+    "bad",
+    [
+        "",
+        "abc",
+        "01a1ede514080767a22947d7c9a7b4a4' or '1'='1",
+        "g" * 32,
+        "01a1ede514080767a22947d7c9a7b4a4a",
+    ],
+)
 def test_bad_trace_ids_rejected(bad):
     assert trace_link(bad) is None
 

@@ -29,4 +29,6 @@ if __name__ == "__main__":
     labelled, n_chunks = build_index(batch_size)
     if labelled:
         print_usage(labelled, labelled)
-    print(f"Index ready: {labelled} lessons newly labelled, {n_chunks} chunks indexed (new ones embedded, the rest from cache).")
+    print(
+        f"Index ready: {labelled} lessons newly labelled, {n_chunks} chunks indexed (new ones embedded, the rest from cache)."
+    )

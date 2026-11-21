@@ -14,17 +14,24 @@ load_dotenv()
 TEST_MODEL = os.getenv("LICK_TEST_MODEL", LickFinderAgentConfig.model)
 
 LESSONS = [
-    {"video_id": "i6Ho6aubraw", "title": "Learn 10 Classic Blues Licks in the BB King Box!",
-     "channel": "swiftlessons"},
-    {"video_id": "sL1kT4VqYR8", "title": "5 Essential B.B. King Blues Licks | Lead Guitar Tutorial",
-     "channel": "swiftlessons"},
+    {
+        "video_id": "i6Ho6aubraw",
+        "title": "Learn 10 Classic Blues Licks in the BB King Box!",
+        "channel": "swiftlessons",
+    },
+    {
+        "video_id": "sL1kT4VqYR8",
+        "title": "5 Essential B.B. King Blues Licks | Lead Guitar Tutorial",
+        "channel": "swiftlessons",
+    },
 ]
 LEVELS = {"i6Ho6aubraw": {"level": "intermediate"}, "sL1kT4VqYR8": {"level": "intermediate"}}
 
 
 def pytest_addoption(parser):
-    parser.addoption("--llm", action="store_true",
-                     help="also run tests that call a real model (costs money)")
+    parser.addoption(
+        "--llm", action="store_true", help="also run tests that call a real model (costs money)"
+    )
 
 
 # Category markers are added from each test's folder, so `pytest -m business`

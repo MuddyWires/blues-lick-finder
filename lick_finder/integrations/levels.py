@@ -125,7 +125,7 @@ def label_missing(documents, path=LEVELS_PATH, batch_size=BATCH_SIZE, limit=None
     levels = read_levels(path)
     todo = [d for d in documents if d["video_id"] not in levels][:limit]
     for start in range(0, len(todo), batch_size):
-        batch = todo[start:start + batch_size]
+        batch = todo[start : start + batch_size]
         got = label_batch(batch, client)
         for doc in batch:
             levels[doc["video_id"]] = got.get(doc["video_id"]) or label_level(doc, client)
@@ -136,8 +136,10 @@ def label_missing(documents, path=LEVELS_PATH, batch_size=BATCH_SIZE, limit=None
 
 def print_usage(labelled, total):
     cost = usage["input"] / 1e6 * INPUT_PRICE_PER_M + usage["output"] / 1e6 * OUTPUT_PRICE_PER_M
-    print(f"\nTokens: {usage['input']} in, {usage['output']} out "
-          f"({usage['reasoning']} of the output was reasoning)")
+    print(
+        f"\nTokens: {usage['input']} in, {usage['output']} out "
+        f"({usage['reasoning']} of the output was reasoning)"
+    )
     print(f"Cost for {labelled} videos: ${cost:.4f}")
     if labelled:
         print(f"Extrapolated to {total} videos: ${cost / labelled * total:.2f}")

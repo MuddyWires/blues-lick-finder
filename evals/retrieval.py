@@ -64,9 +64,13 @@ def load_cases(documents):
     cases = []
     for row in csv.DictReader(CASES.open(newline="")):
         phrases = [norm(p) for p in row["title_any"].split("|")]
-        row["relevant_ids"] = {d["video_id"] for d in indexed if any(p in norm(d["title"]) for p in phrases)}
+        row["relevant_ids"] = {
+            d["video_id"] for d in indexed if any(p in norm(d["title"]) for p in phrases)
+        }
         if not row["relevant_ids"]:
-            print(f"WARNING: no indexed lesson matches case {row['id']} ({row['title_any']}), skipped")
+            print(
+                f"WARNING: no indexed lesson matches case {row['id']} ({row['title_any']}), skipped"
+            )
             continue
         cases.append(row)
     return cases
@@ -97,17 +101,34 @@ def report(name, cases, engine, k, show_misses):
         m = retrieval_metrics(cases, ranked, k)
         latency_ms = 1000 * sum(latencies) / len(cases)
         chars = sum(sizes) / len(cases)
-        print(f"{method:12} {m['hit_rate']:.2f}   {m['mrr']:.2f}   {latency_ms:5.0f} ms  {chars:6.0f} chars")
-        rows.append({"split": name.lower(), "method": method, "k": k, "questions": len(cases),
-                     "hit_rate": round(m["hit_rate"], 3), "mrr": round(m["mrr"], 3),
-                     "latency_ms": round(latency_ms, 1), "chars_sent": round(chars)})
+        print(
+            f"{method:12} {m['hit_rate']:.2f}   {m['mrr']:.2f}   {latency_ms:5.0f} ms  {chars:6.0f} chars"
+        )
+        rows.append(
+            {
+                "split": name.lower(),
+                "method": method,
+                "k": k,
+                "questions": len(cases),
+                "hit_rate": round(m["hit_rate"], 3),
+                "mrr": round(m["mrr"], 3),
+                "latency_ms": round(latency_ms, 1),
+                "chars_sent": round(chars),
+            }
+        )
         for case, ids in zip(cases, ranked):
             if set(ids) & case["relevant_ids"]:
                 continue
-            miss = {"split": name.lower(), "method": method, "id": case["id"], "kind": case["kind"],
-                    "query": case["query"], "wanted_title_phrase": case["title_any"],
-                    "n_relevant": len(case["relevant_ids"]),
-                    "got": " | ".join(titles.get(i, i)[:60] for i in ids)}
+            miss = {
+                "split": name.lower(),
+                "method": method,
+                "id": case["id"],
+                "kind": case["kind"],
+                "query": case["query"],
+                "wanted_title_phrase": case["title_any"],
+                "n_relevant": len(case["relevant_ids"]),
+                "got": " | ".join(titles.get(i, i)[:60] for i in ids),
+            }
             miss_rows.append(miss)
             if method == "vector":
                 vector_misses.append(miss)
@@ -115,7 +136,9 @@ def report(name, cases, engine, k, show_misses):
         print(f"\nMisses for 'vector', the agent's default method ({len(vector_misses)}):")
         for miss in vector_misses:
             print(f"  #{miss['id']} [{miss['kind']}] {miss['query']}")
-            print(f"     wanted: {miss['n_relevant']} lessons with '{miss['wanted_title_phrase']}' in the title")
+            print(
+                f"     wanted: {miss['n_relevant']} lessons with '{miss['wanted_title_phrase']}' in the title"
+            )
             print(f"     got:    {miss['got']}")
     return rows, miss_rows
 

@@ -93,4 +93,3 @@ def test_operations_on_an_unsaved_lesson_raise(log, operation):
 
 def test_a_missing_file_is_an_empty_log(tmp_path):
     assert PracticeLog(tmp_path / "nope.json", catalog=set()).list() == []
-

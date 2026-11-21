@@ -14,6 +14,11 @@ from .practice_log import (
 from .topic_queue import InvalidTopic, TopicAlreadyQueued, TopicQueue
 
 __all__ = [
-    "InvalidTopic", "LessonAlreadySaved", "LessonNotInCatalog", "LessonNotSaved",
-    "PracticeLog", "TopicAlreadyQueued", "TopicQueue",
+    "InvalidTopic",
+    "LessonAlreadySaved",
+    "LessonNotInCatalog",
+    "LessonNotSaved",
+    "PracticeLog",
+    "TopicAlreadyQueued",
+    "TopicQueue",
 ]

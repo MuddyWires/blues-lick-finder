@@ -77,8 +77,10 @@ class PracticeLog:
         if filter:
             needle = filter.lower()
             entries = [
-                e for e in entries
-                if needle in " ".join(str(e.get(f, "")) for f in ("song", "technique", "key")).lower()
+                e
+                for e in entries
+                if needle
+                in " ".join(str(e.get(f, "")) for f in ("song", "technique", "key")).lower()
             ]
 
         entries.sort(key=lambda e: e["saved_date"], reverse=True)

@@ -25,8 +25,9 @@ class LessonStore:
         chapters = []
         for c in doc.get("chapters") or []:
             start = int(c.get("start_time") or 0)
-            chapters.append(Chapter(title=c.get("title") or "", start_sec=start,
-                                    link=f"{url}&t={start}s"))
+            chapters.append(
+                Chapter(title=c.get("title") or "", start_sec=start, link=f"{url}&t={start}s")
+            )
 
         return LessonFacts(
             video_id=video_id,

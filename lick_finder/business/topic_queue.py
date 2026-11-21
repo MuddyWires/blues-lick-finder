@@ -42,7 +42,8 @@ class TopicQueue:
 
         with self._lock:
             existing = [
-                line.strip() for line in self.path.read_text().splitlines()
+                line.strip()
+                for line in self.path.read_text().splitlines()
                 if line.strip() and not line.strip().startswith("#")
             ]
             if topic.lower() in (line.lower() for line in existing):

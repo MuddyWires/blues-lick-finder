@@ -70,7 +70,9 @@ def make_tools(seed, tmp):
 
 
 def read_log(tools):
-    return json.loads(tools.practice_log_path.read_text()) if tools.practice_log_path.exists() else []
+    return (
+        json.loads(tools.practice_log_path.read_text()) if tools.practice_log_path.exists() else []
+    )
 
 
 def topic_lines(tools):
@@ -105,9 +107,26 @@ def check(called, expected, forbidden):
 
 async def run_one(row, agent_cfg, sem, use_judge):
     async with sem:
-        out = {k: row[k] for k in ("id", "category", "use_case", "seed", "question", "expected_behavior")}
-        out.update(tools_called="", tool_args="", answer="", input_tokens=0, output_tokens=0,
-                   cost_usd=0.0, seconds=0.0, judge="", judge_reason="", saved_added=0, topics_queued="", auto_check="", problems="", error="")
+        out = {
+            k: row[k]
+            for k in ("id", "category", "use_case", "seed", "question", "expected_behavior")
+        }
+        out.update(
+            tools_called="",
+            tool_args="",
+            answer="",
+            input_tokens=0,
+            output_tokens=0,
+            cost_usd=0.0,
+            seconds=0.0,
+            judge="",
+            judge_reason="",
+            saved_added=0,
+            topics_queued="",
+            auto_check="",
+            problems="",
+            error="",
+        )
         tmp = Path(tempfile.mkdtemp(prefix=f"scenario{row['id']}_"))
         start = time.time()
         try:
@@ -115,26 +134,37 @@ async def run_one(row, agent_cfg, sem, use_judge):
             agent = create_agent(agent_cfg, tools)
             history = []
             for turn in split(row["setup"], "||"):
-                r = await agent.run(turn, message_history=history, output_type=AgentResponse,
-                                    usage_limits=USAGE_LIMITS)
+                r = await agent.run(
+                    turn,
+                    message_history=history,
+                    output_type=AgentResponse,
+                    usage_limits=USAGE_LIMITS,
+                )
                 history = r.all_messages()
             before_log, before_topics = read_log(tools), topic_lines(tools)
 
-            result = await agent.run(row["question"], message_history=history,
-                                     output_type=AgentResponse, usage_limits=USAGE_LIMITS)
+            result = await agent.run(
+                row["question"],
+                message_history=history,
+                output_type=AgentResponse,
+                usage_limits=USAGE_LIMITS,
+            )
             summary = turn_summary(result, agent_cfg.model)
             calls = tool_calls(result)
-            problems = check(summary["tools"], split(row["expected_tools"]), split(row["forbidden_tools"]))
+            problems = check(
+                summary["tools"], split(row["expected_tools"]), split(row["forbidden_tools"])
+            )
 
             after_log = read_log(tools)
             out.update(
                 tools_called=" > ".join(summary["tools"]),
                 tool_args=" || ".join(f"{n}({a})" for n, a in calls),
                 answer=result.output.answer,
-                input_tokens=summary["input"], output_tokens=summary["output"],
+                input_tokens=summary["input"],
+                output_tokens=summary["output"],
                 cost_usd=round(summary["cost"] or 0, 6),
                 saved_added=len(after_log) - len(before_log),
-                topics_queued="; ".join(topic_lines(tools)[len(before_topics):]),
+                topics_queued="; ".join(topic_lines(tools)[len(before_topics) :]),
                 auto_check="PASS" if not problems else "FAIL",
                 problems="; ".join(problems),
             )
@@ -149,13 +179,20 @@ async def run_one(row, agent_cfg, sem, use_judge):
                 out["judge"] = "PASS" if all(c.passed for c in fb.criteria) else "FAIL"
                 out["judge_reason"] = " | ".join(c.judgement for c in fb.criteria)
         except UsageLimitExceeded:
-            out.update(auto_check="FAIL", problems="hit request limit (stuck loop)", error="UsageLimitExceeded")
+            out.update(
+                auto_check="FAIL",
+                problems="hit request limit (stuck loop)",
+                error="UsageLimitExceeded",
+            )
         except Exception as e:  # keep the batch going
             out.update(auto_check="ERROR", error=f"{type(e).__name__}: {e}")
         finally:
             out["seconds"] = round(time.time() - start, 1)
             shutil.rmtree(tmp, ignore_errors=True)
-        print(f"#{row['id']:>3} {out['category']:<16} {out['auto_check']:<5} {out['tools_called'] or '-'}", flush=True)
+        print(
+            f"#{row['id']:>3} {out['category']:<16} {out['auto_check']:<5} {out['tools_called'] or '-'}",
+            flush=True,
+        )
         return out
 
 
@@ -163,7 +200,9 @@ async def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("ids", nargs="*", help="only run these scenario ids")
     ap.add_argument("--no-judge", action="store_true", help="skip the LLM judge on answers")
-    ap.add_argument("--model", help="agent model, e.g. openai:gpt-5.4-mini (default: the agent's own)")
+    ap.add_argument(
+        "--model", help="agent model, e.g. openai:gpt-5.4-mini (default: the agent's own)"
+    )
     ap.add_argument("--workers", type=int, default=4)
     args = ap.parse_args()
 
@@ -194,7 +233,9 @@ async def main():
     print(f"\n{'category':<16} tools  judge")
     for cat, (tools_ok, judge_ok, n) in by_cat.items():
         print(f"  {cat:<16} {tools_ok}/{n}   {judge_ok}/{n}")
-    print(f"Agent cost: ${sum(r['cost_usd'] for r in results):.4f} (judge cost in the usage lines below)")
+    print(
+        f"Agent cost: ${sum(r['cost_usd'] for r in results):.4f} (judge cost in the usage lines below)"
+    )
     display_total_usage()
     print(f"Saved: {path}")
 
