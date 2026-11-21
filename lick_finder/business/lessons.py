@@ -3,8 +3,8 @@
 from functools import lru_cache
 
 from ..integrations.levels import read_levels
-from ..models import Chapter, LessonFacts, LessonPick, RecommendedLesson
 from ..integrations.youtube_data import read_cache
+from ..models import Chapter, LessonFacts, LessonPick, RecommendedLesson
 
 
 class LessonStore:

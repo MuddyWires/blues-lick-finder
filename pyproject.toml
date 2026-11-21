@@ -22,12 +22,24 @@ app = [
     "streamlit>=1.40",
 ]
 dev = [
-    "jupyter>=1.1.1",
     "pytest>=8.0",
     "pytest-asyncio>=1.5.0",
+    "ruff>=0.17",
+]
+# Only for the notebooks; kept out of the default install and out of CI.
+notebooks = [
+    "jupyter>=1.1.1",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["notebooks", "reference"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]

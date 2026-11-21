@@ -3,10 +3,8 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-from lick_finder.agent import LickFinderAgentConfig, create_agent
+from lick_finder.agent import LickFinderAgentConfig, LickFinderTools, create_agent
 from lick_finder.business.lessons import LessonStore
-from lick_finder.agent import LickFinderTools
-
 from tests.llm.cost_tracker import display_total_usage
 
 load_dotenv()

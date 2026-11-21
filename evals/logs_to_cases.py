@@ -14,7 +14,7 @@ blank for you to fill in and review before you copy rows into scenarios.csv.
 import argparse
 import csv
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from reports.report_cli import get_client, load_menu
@@ -66,7 +66,7 @@ def main():
     args = ap.parse_args()
 
     menu = load_menu()
-    since = datetime.now(timezone.utc) - timedelta(days=args.days)
+    since = datetime.now(UTC) - timedelta(days=args.days)
     rows = get_client().query_json_rows(SQL.replace("$SERVICE", menu["service"]), min_timestamp=since)["rows"]
 
     seen = {r["question"].strip().lower() for r in csv.DictReader(SCENARIOS.open(newline=""))}

@@ -66,7 +66,7 @@ def test_contains_checks_the_data():
 def test_hydrate_keeps_order_and_separates_unknown_ids():
     lessons, unknown = store().hydrate([pick("bare"), pick("made-up"), pick("full")])
 
-    assert [l.facts.video_id for l in lessons] == ["bare", "full"]
+    assert [lesson.facts.video_id for lesson in lessons] == ["bare", "full"]
     assert unknown == ["made-up"]
     assert lessons[1].pick.reason == "Clear breakdown."
     assert lessons[0].labels is None

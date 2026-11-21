@@ -8,10 +8,9 @@ import json
 from datetime import date
 from pathlib import Path
 from threading import Lock
-from typing import Optional
 
-from .lessons import get_store
 from ..paths import PRACTICE_LOG_PATH
+from .lessons import get_store
 
 
 class LessonNotInCatalog(Exception):
@@ -68,7 +67,7 @@ class PracticeLog:
             self._write(entries)
             return entry
 
-    def list(self, filter: Optional[str] = None, liked_only: bool = False, limit: int = 10):
+    def list(self, filter: str | None = None, liked_only: bool = False, limit: int = 10):
         """Saved lessons, newest first."""
         entries = self._read()
 

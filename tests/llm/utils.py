@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from lick_finder.agent import AgentStreamRunner
-
 from tests.llm.cost_tracker import capture_usage
 
 

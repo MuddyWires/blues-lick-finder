@@ -11,8 +11,8 @@ import asyncio
 import os
 import sys
 import uuid
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from datetime import datetime, timedelta, timezone
 
 import dotenv
 import logfire
@@ -59,7 +59,7 @@ def all_sessions_cost():
         "select sum(cast(attributes->>'cost_usd' as double)) as cost from records "
         f"where service_name = '{SERVICE_NAME}' "
         "and span_name in ('chat session', 'chat turn')",
-        min_timestamp=datetime.now(timezone.utc) - timedelta(days=30),
+        min_timestamp=datetime.now(UTC) - timedelta(days=30),
     )["rows"]
     return float(rows[0]["cost"] or 0.0)
 

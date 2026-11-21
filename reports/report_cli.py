@@ -10,11 +10,9 @@ thing typed here is a trace id, which is validated and used in a URL only.
 import json
 import os
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from urllib.parse import quote
-
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from lick_finder.monitoring import TRACE_URL as PROJECT_URL
 
@@ -59,7 +57,7 @@ def run(item, menu, client):
         link = trace_link(input("trace id: "))
         print(link or "Not a valid trace id (expected 32 hex characters).")
         return
-    since = datetime.now(timezone.utc) - timedelta(days=menu["days"])
+    since = datetime.now(UTC) - timedelta(days=menu["days"])
     for qry in item["queries"]:
         sql = qry["sql"].replace("$SERVICE", menu["service"])
         rows = client.query_json_rows(sql, min_timestamp=since)["rows"]

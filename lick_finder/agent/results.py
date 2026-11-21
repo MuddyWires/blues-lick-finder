@@ -4,7 +4,7 @@
 can branch on them. `message` is a constant for the model to read.
 """
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -28,17 +28,17 @@ class SavedLesson(BaseModel):
     saved_date: str
     liked: bool
     view_count: int
-    last_viewed: Optional[str] = None
+    last_viewed: str | None = None
 
 
 class ToolResult(BaseModel):
     status: Status
     next_step: NextStep = "none"
     message: str
-    lesson: Optional[SavedLesson] = None
+    lesson: SavedLesson | None = None
 
     @classmethod
-    def of(cls, status: Status, next_step: NextStep = "none", lesson: Optional[dict] = None):
+    def of(cls, status: Status, next_step: NextStep = "none", lesson: dict | None = None):
         """Build a result, attaching the fixed message for the status."""
         return cls(
             status=status,

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from pydantic_ai import RunContext
 from pydantic_ai.messages import ModelResponse, ToolCallPart
@@ -13,8 +13,8 @@ from ..business import (
     TopicAlreadyQueued,
     TopicQueue,
 )
-from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from ..integrations.search import IndexNotBuilt, search
+from ..paths import PRACTICE_LOG_PATH, TOPICS_PATH
 from .results import ToolResult
 
 # Policy for the agent, not a business rule: one question may search this many
@@ -59,8 +59,8 @@ class LickFinderTools:
         self.topics = TopicQueue(topics_path)
 
     def search_lessons(
-        self, ctx: RunContext, query: str, level: Optional[str] = None
-    ) -> List[Dict[str, Any]] | ToolResult:
+        self, ctx: RunContext, query: str, level: str | None = None
+    ) -> list[dict[str, Any]] | ToolResult:
         """
         Search the stored blues lesson videos. The first step for any "find
         me a lesson" request.
@@ -98,7 +98,7 @@ class LickFinderTools:
         except LessonAlreadySaved:
             return ToolResult.of("already_saved", next_step="stop")
 
-    def get_history(self, filter: Optional[str] = None, liked_only: bool = False, limit: int = 10):
+    def get_history(self, filter: str | None = None, liked_only: bool = False, limit: int = 10):
         """
         List saved lessons, newest first. Use for questions about what's
         already saved, what to practice next, or to find a lesson to replay.

@@ -18,6 +18,9 @@ from .embeddings import IndexNotBuilt, VectorIndex, best_chunk_per_video, retrie
 from .levels import apply_levels
 from .youtube_data import read_cache
 
+# IndexNotBuilt is re-exported: the agent layer catches it from here.
+__all__ = ["Engine", "IndexNotBuilt", "filter_level", "get_engine", "make_chunks", "search"]
+
 
 @dataclass
 class Engine:

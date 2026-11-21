@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from lick_finder.integrations.embeddings import best_chunk_per_video, retrieve
-from lick_finder.paths import DATA_DIR
 from lick_finder.integrations.search import get_engine
+from lick_finder.paths import DATA_DIR
 
 load_dotenv()
 
