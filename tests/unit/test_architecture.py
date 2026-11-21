@@ -19,9 +19,9 @@ FORBIDDEN = {
 }
 
 
-def imported_modules(path):
+def imported_modules(path, root=ROOT):
     """Absolute names of everything a file imports."""
-    package = ["lick_finder", *path.relative_to(ROOT).parent.parts]
+    package = ["lick_finder", *path.relative_to(root).parent.parts]
     names = []
     for node in ast.walk(ast.parse(path.read_text())):
         if isinstance(node, ast.Import):
@@ -45,12 +45,11 @@ def test_layer_does_not_import_what_is_above_it(layer):
     assert offenders == []
 
 
-def test_the_checker_catches_a_violation(tmp_path, monkeypatch):
-    bad = ROOT / "business" / "_tmp_bad.py"
+def test_the_checker_catches_a_violation(tmp_path):
+    # A throwaway package in tmp_path, so the test never writes into lick_finder/.
+    root = tmp_path / "lick_finder"
+    (root / "business").mkdir(parents=True)
+    bad = root / "business" / "bad.py"
     bad.write_text("from ..agent.tool_messages import SAVED_LESSON_NOT_FOUND\n")
-    try:
-        names = imported_modules(bad)
-    finally:
-        bad.unlink()
 
-    assert "lick_finder.agent.tool_messages" in names
+    assert "lick_finder.agent.tool_messages" in imported_modules(bad, root)
