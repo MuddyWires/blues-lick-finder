@@ -8,6 +8,11 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # The image should run the Python the project is developed and tested on
+      # (.python-version). Move it by hand together with that file.
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: uv
     directory: /
     schedule:
