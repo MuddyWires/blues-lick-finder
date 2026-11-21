@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.15-slim
 
 # Pinned, so builds are reproducible. Bump it deliberately (Dependabot opens the PR).
 COPY --from=ghcr.io/astral-sh/uv:0.12.17 /uv /uvx /bin/
