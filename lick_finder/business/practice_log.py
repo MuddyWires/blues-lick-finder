@@ -9,6 +9,7 @@ from datetime import date
 from pathlib import Path
 from threading import Lock
 
+from ..integrations.files import write_text_atomic
 from ..paths import PRACTICE_LOG_PATH
 from .lessons import get_store
 
@@ -37,7 +38,7 @@ class PracticeLog:
         return []
 
     def _write(self, entries):
-        self.path.write_text(json.dumps(entries, indent=2))
+        write_text_atomic(self.path, json.dumps(entries, indent=2))
 
     def has(self, video_id: str) -> bool:
         return any(e["video_id"] == video_id for e in self._read())

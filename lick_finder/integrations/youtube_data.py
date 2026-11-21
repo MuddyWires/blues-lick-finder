@@ -16,6 +16,7 @@ from youtube_transcript_api import IpBlocked, RequestBlocked, YouTubeTranscriptA
 from youtube_transcript_api.proxies import GenericProxyConfig
 
 from ..paths import DATA_PATH, TOPICS_PATH
+from .files import write_text_atomic
 
 
 class RotatingProxyConfig(GenericProxyConfig):
@@ -190,7 +191,7 @@ def load_lessons(path=DATA_PATH):
         # Save after each topic so an interrupted run resumes where it stopped.
         cached_ids = {doc["video_id"] for doc in documents}
         documents += fetch_lessons([topic], RESULTS_PER_TOPIC, skip_ids=cached_ids)
-        path.write_text(json.dumps(documents, indent=2))
+        write_text_atomic(path, json.dumps(documents, indent=2))
 
     missing = [
         doc["video_id"] for doc in documents if "comments" not in doc or "chapters" not in doc
@@ -203,7 +204,7 @@ def load_lessons(path=DATA_PATH):
             if extras:
                 doc.setdefault("comments", extras["comments"])
                 doc.setdefault("chapters", extras["chapters"])
-        path.write_text(json.dumps(documents, indent=2))
+        write_text_atomic(path, json.dumps(documents, indent=2))
 
     return documents
 

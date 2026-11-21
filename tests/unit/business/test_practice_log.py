@@ -93,3 +93,18 @@ def test_operations_on_an_unsaved_lesson_raise(log, operation):
 
 def test_a_missing_file_is_an_empty_log(tmp_path):
     assert PracticeLog(tmp_path / "nope.json", catalog=set()).list() == []
+
+
+def test_a_crash_while_saving_leaves_the_practice_log_intact(log, tmp_path, monkeypatch):
+    add(log, "a")
+    before = (tmp_path / "log.json").read_text()
+
+    def crash(*args):
+        raise OSError("disk full")
+
+    monkeypatch.setattr("lick_finder.integrations.files.os.replace", crash)
+    with pytest.raises(OSError):
+        add(log, "b")
+
+    assert (tmp_path / "log.json").read_text() == before  # not truncated, not half-written
+    assert [p.name for p in tmp_path.iterdir()] == ["log.json"]  # no temp file left behind
