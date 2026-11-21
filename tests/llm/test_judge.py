@@ -71,8 +71,8 @@ async def test_a_beginner_search_follows_the_agents_rules(agent_for, bb_king_too
             "The agent called search_lessons with the argument level set to 'beginner'.",
             "The agent made no call to save_lesson, open_lesson, like_lesson or change_saved_lesson, "
             "because the user only asked to find lessons.",
-            "Every lesson title named in the answer is one of the titles in TOOL_RESULTS. "
-            "The answer names no lesson that is not in those results.",
+            "Every video_id in the answer's `lessons` is one of the video_ids in TOOL_RESULTS, "
+            "and the answer text names no lesson that is not in those results.",
             QUOTE_CRITERION,
             "The answer contains no timestamp such as 2:30 or 1:05:12, because no comment in "
             "TOOL_RESULTS gives one.",
