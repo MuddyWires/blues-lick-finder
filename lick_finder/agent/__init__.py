@@ -8,7 +8,7 @@ from .agent import (
     LickFinderAgentConfig,
     create_agent,
 )
-from .present import Presented, present, render, render_lessons
+from .present import Presented, present, render, render_lessons, render_markdown
 from .tools import LickFinderTools
 
 __all__ = [
@@ -23,4 +23,5 @@ __all__ = [
     "present",
     "render",
     "render_lessons",
+    "render_markdown",
 ]

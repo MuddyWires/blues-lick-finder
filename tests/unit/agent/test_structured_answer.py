@@ -11,6 +11,7 @@ from pydantic_ai.models.function import FunctionModel
 
 from lick_finder.agent import LickFinderAgentConfig, create_agent, present, render
 from lick_finder.agent.agent import UNKNOWN_LESSON_MESSAGE
+from lick_finder.models import AgentResponse, LessonPick
 
 pytestmark = pytest.mark.asyncio
 
@@ -117,3 +118,25 @@ async def test_the_model_can_choose_between_a_plain_reply_and_a_reply_with_lesso
     result = await agent.run("hi")
 
     assert type(result.output).__name__ == "Reply"  # no `lessons` field to fill for a refusal
+
+
+async def test_the_markdown_version_keeps_each_field_on_its_own_line_and_escapes_titles():
+    from lick_finder.agent import render_markdown
+    from lick_finder.business.lessons import LessonStore
+
+    store = LessonStore(
+        [{"video_id": "abc", "title": "Cool [lick](http://evil.example) *now*", "channel": "A_B"}],
+        {},
+    )
+    response = AgentResponse(
+        answer="Try this.", lessons=[LessonPick(video_id="abc", reason="Clear.")]
+    )
+
+    text = render_markdown(present(response, store))
+
+    assert (
+        "**Cool \\[lick\\]\\(http://evil.example\\) \\*now\\***  \n" in text
+    )  # shown as text, not a link
+    assert "[lick](http://evil.example)" not in text
+    assert text.count("  \n") == 3  # title, channel line, link: each ends in a Markdown line break
+    assert "Why: Clear." in text

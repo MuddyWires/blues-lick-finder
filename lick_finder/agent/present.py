@@ -6,6 +6,7 @@ LessonStore.hydrate(). A pick whose video_id is not in the data is dropped and
 flagged, so a made-up or mistyped lesson never reaches the user as if it were real.
 """
 
+import re
 from dataclasses import dataclass
 
 from ..models import AgentResponse, RecommendedLesson, Reply
@@ -47,4 +48,32 @@ def render_lessons(presented: Presented) -> str:
 def render(presented: Presented) -> str:
     """Answer plus lessons, for places that show one block of text."""
     extra = render_lessons(presented)
+    return f"{presented.answer}\n\n{extra}" if extra else presented.answer
+
+
+def _escape_markdown(text: str) -> str:
+    """Titles and channel names are other people's text: show them as text, not as
+    Markdown links or formatting."""
+    return re.sub(r"([\\`*_{}\[\]()#+!<>|~])", r"\\\1", text)
+
+
+def render_lessons_markdown(presented: Presented) -> str:
+    """The same lessons as Markdown, for the Streamlit app (which collapses plain line breaks)."""
+    blocks = []
+    for number, lesson in enumerate(presented.lessons, 1):
+        facts = lesson.facts
+        blocks.append(
+            f"{number}. **{_escape_markdown(facts.title)}**  \n"
+            f"   {_escape_markdown(facts.channel)} · {facts.level} · {facts.duration_min} min  \n"
+            f"   <{facts.url}>  \n"
+            f"   Why: {lesson.pick.reason}"
+        )
+    if presented.dropped:
+        blocks.append(DROPPED_NOTE.format(n=len(presented.dropped)))
+    return "\n\n".join(blocks)
+
+
+def render_markdown(presented: Presented) -> str:
+    """Answer plus lessons as Markdown."""
+    extra = render_lessons_markdown(presented)
     return f"{presented.answer}\n\n{extra}" if extra else presented.answer

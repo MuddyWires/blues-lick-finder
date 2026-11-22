@@ -32,7 +32,7 @@ from lick_finder.agent import (  # noqa: E402
     LickFinderTools,
     create_agent,
     present,
-    render,
+    render_markdown,
 )
 from lick_finder.monitoring import SERVICE_NAME, TRACE_URL, setup_monitoring  # noqa: E402
 from lick_finder.turn import format_summary, is_output_tool, turn_summary  # noqa: E402
@@ -165,7 +165,7 @@ if question := st.chat_input("Ask about a blues lick or lesson…"):
             "trace_url": f"{TRACE_URL}?q=trace_id%3D%27{trace_id}%27",
             "trace_id": trace_id,
         }
-        text = render(present(result.output, tools.lesson_store()))
+        text = render_markdown(present(result.output, tools.lesson_store()))
         st.write(text)
         show_details(details)
     ss.history = result.all_messages()
