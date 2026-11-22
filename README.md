@@ -2,6 +2,14 @@
 
 An agent that finds well-taught blues guitar lessons for a song or technique, ranks them by teaching quality, and keeps a practice log of the lessons you pick.
 
+**At a glance**
+
+- **Agent:** seven tools (search, save, history, open, like, queue a topic, and a "not supported yet" stub) on `gpt-5.4-mini`. Recommended lessons are checked against the lesson data before you see them.
+- **Tests:** 139 free tests plus 12 real-model tests (including tests of the LLM judge). CI runs lint, tests and a Docker build.
+- **Evaluation:** 65 scenarios scored by tool use and an LLM judge (63 of 65 pass the tool check), and search scored on its own on 31 hand-written questions with a held-out test set.
+- **Monitoring:** Logfire traces with cost per question, a usage report, and thumbs up/down feedback.
+- **Run it:** `make demo` chats with a small bundled dataset, so there is nothing to fetch (it needs an OpenAI key). Docker and a Makefile are included. See [Example session](#example-session) if you don't want to run it.
+
 ## The problem
 
 When I learn blues licks, I keep searching for the same lessons over and over. YouTube ranks videos by engagement, not by how well they teach, so the clearest lessons are often buried under the most popular ones. And nothing remembers which lessons I chose, which I liked, or what I should practice next.
@@ -26,6 +34,42 @@ You chat with the agent ("best lesson for the Hide Away intro", "easy BB King li
 
 Text inside search results is treated as data, never as instructions. Recommended lessons come back as structured output (video IDs and reasons). Code looks every ID up in the lesson data, fills in the title, channel, level and link itself, and drops and flags any lesson that is not there; the model gets one retry first. The agent declines off-topic questions without calling any tool, and never reveals its instructions.
 
+## Example session
+
+A real run of `make run` (full dataset; long lines shortened). The lesson titles, channels, levels and links come from the lesson data, not from the model. The second question is off-topic, so the agent calls no tool.
+
+```
+> Easy BB King licks, I am a beginner
+TOOL CALL: search_lessons({"query":"BB King licks","level":"beginner"})
+Here are a few beginner-friendly BB King lessons to start with, ranked best first.
+
+1. BB King Teaches Guitar: Vibrato Technique
+   Enter The Jam · beginner · 3 min
+   https://www.youtube.com/watch?v=4GUVOrr5gBE
+   Why: This is the most focused beginner lesson for BB King style because it breaks down his vibrato...
+2. The Ultimate B.B. King Lick Tutorial
+   Marty Music · beginner · 10 min
+   https://www.youtube.com/watch?v=-h49wjjL4SQ
+   Why: This lesson teaches BB King box phrasing step by step, shows the notes and bends clearly...
+3. How to play The Thrill Is Gone on guitar | BB King Guitar Lesson
+   JustinGuitar Songs · beginner · 15 min
+   https://www.youtube.com/watch?v=K5w8DqF0vT0
+   Why: It's a solid beginner BB King song lesson with a clear demonstration, structured breakdown...
+[tools: search_lessons | 10953 in / 309 out | $0.0096]
+
+> What is the weather in London?
+I can help with blues guitar lessons and your practice log, but not weather.
+[tools: none | 9095 in / 35 out | $0.0070]
+```
+
+The same question in the Streamlit app. The lessons are built from the lesson data, and each answer links to its Logfire trace.
+
+![Streamlit chat: a beginner BB King question answered with three ranked lessons, each with channel, level, length, link and reason](docs/images/streamlit-chat.png)
+
+Below every answer: the tool call, the tokens and cost, and thumbs up/down buttons that are logged to Logfire.
+
+![Streamlit answer details: the search_lessons call, 11171 tokens in and 235 out, $0.0094, and the thumbs up/down buttons](docs/images/streamlit-details.png)
+
 ## Setup
 
 You need [uv](https://docs.astral.sh/uv/getting-started/installation/) and an OpenAI API key. No YouTube API key is needed.
@@ -39,7 +83,11 @@ make install                # uv sync --group app
 
 ### Data
 
-The data files are large and gitignored, so a fresh clone has none. Only `data/topics.txt` (the list of YouTube searches and channels) is in the repo.
+**Just want to try it?** `make demo` (terminal) or `make demo-app` (Streamlit) uses a small bundled dataset in `data/sample/` (36 lessons, short transcript excerpts only, already indexed), so there is nothing to fetch. It still needs `OPENAI_API_KEY`. In Docker: `LICK_DATA_DIR=/app/data/sample docker compose up --build`. See `data/sample/README.md`.
+
+For the full dataset:
+
+The full data files are large and gitignored, so a fresh clone has none. Only `data/topics.txt` (the list of YouTube searches and channels) and the small `data/sample/` set are in the repo.
 
 ```
 make fetch                  # fetches every topic in data/topics.txt into data/lessons.json
@@ -49,7 +97,7 @@ make index                  # labels each lesson's level and embeds the transcri
 - Fetching takes 1 to 3 minutes per topic and YouTube can block transcript requests. The optional `DATAIMPULSE_*` settings in `.env.example` route requests through a proxy.
 - `make index` is the only step that calls OpenAI to prepare the data. It labels levels 10 lessons per call and embeds chunks in batches of 100, saves as it goes, and skips anything already cached, so a second run costs nothing. For the full catalog it takes a few minutes and costs about $0.40 for levels (see design.md), plus a small amount for embeddings.
 - The app and the agent only read what `make index` produced. If the index is missing, search answers that it isn't ready and tells you to run `make index`, instead of labelling hundreds of lessons in the middle of a question.
-Add your own topics by editing `data/topics.txt` and running `make fetch` again. The agent also appends topics there when it queues one.
+- Add your own topics by editing `data/topics.txt`, then run `make fetch` and `make index` again. The agent also appends topics there when it queues one.
 
 ## Run
 
@@ -139,6 +187,10 @@ Every session is traced in [Logfire](https://logfire.pydantic.dev) (`instrument_
 3. Chat. The CLI prints a trace link at the end. The Streamlit app shows a trace link under every answer.
 4. `uv run python -m reports.report_cli` lists recent sessions, cost, tool usage, the biggest LLM calls and the thumbs up/down counts.
 
+![A Logfire trace of one question: the chat turn, two model calls, the search_lessons tool and its embedding call, with token counts and timings](docs/images/logfire-trace.png)
+
+One question as a trace: the model decides to search, the tool embeds the question, then the model writes the answer. Each span shows its tokens and duration.
+
 **User feedback:** the Streamlit app has 👍 and 👎 under every answer. Each click is logged to Logfire as a `user feedback` event with the trace id.
 
 Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It covers the chat model only, not embedding or level-labelling calls.
@@ -150,3 +202,29 @@ Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It 
 ## Notebooks
 
 `notebooks/01-setup.ipynb` is a smoke test that confirms your environment works. Jupyter is its own dependency group: `uv run --group notebooks jupyter notebook`. The earlier RAG and search-evaluation notebooks are kept locally and are not in the repo; their work now lives in `lick_finder/integrations/` and `evals/`.
+
+## Known limits
+
+- **Two scenarios still fail the tool check** (#14 "I loved it" and #33 "Unlike the first one"): the agent looks up your history and then stops without acting. It did this before the latest changes too.
+- **Quotes and timestamps are not verified** against the comments the search returned. Recommended lesson ids are checked; quoted comments inside the answer text are not.
+- **The 60 labels** used to score the judge were written by an AI assistant, not by a person, so the judge numbers show agreement with it. The 65 scenarios were written with an AI assistant as well.
+- **Results vary between runs,** so one run per model is a rough comparison.
+- **The sample dataset is thin:** short excerpts, no comments, so answers differ from the full data.
+
+## Self-evaluation
+
+| Criterion | Claimed | Evidence | Gap |
+|---|---|---|---|
+| Problem description | 2 | [The problem](#the-problem) | none |
+| Knowledge base and retrieval | 2 | [Retrieval](#retrieval-separately-from-the-agent): 200 generated and 31 hand-written questions, dev/test split, five methods, the default chosen with reasons | the question sets disagree on the best method, so the choice is argued, not proven |
+| Agents and LLM | 3 | [Seven tools](#what-it-does), documented here and in `design.md` | none |
+| Code organization | 2 | [Code layout](#code-layout), enforced by an architecture test | none |
+| Testing | 2 | [Tests](#tests): free tests, real-model tests, judge tests, and CI | none |
+| Evaluation | 3 | [The agent](#the-agent): 65 scenarios, an LLM judge, and a table of what the evaluation changed | labels are AI-written |
+| Monitoring | 2 | [Monitoring](#monitoring): Logfire traces, cost per question, a report CLI | none; a trace screenshot is above |
+| Reproducibility | 2 | [Setup](#setup), `make demo` with bundled data, Docker | needs an OpenAI key; the full fetch is slow |
+| Best practices | 7 | Docker 1, compose 2, Makefile 1, uv 1, CI 2 | none |
+| Monitoring bonus | 1 | thumbs up/down feedback, logged with the trace id | |
+| UI | 1 | terminal chat and Streamlit | |
+
+**Claimed: 27.** Not claimed: hand-written ground truth (written with an AI assistant), manual evaluation (labels are AI-written), turning logs into ground truth automatically (`make logs-to-cases` gives candidates that need review by hand), and cloud deployment.
