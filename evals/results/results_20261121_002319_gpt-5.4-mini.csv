@@ -7,18 +7,18 @@ If you want, I can also point you to the best option for the **full song** or th
 1) The Ultimate B.B. King Lick Tutorial — Marty Music
    - Best overall for a beginner because it explains the B.B. box clearly and breaks down the lick note by note.
    - Strong on specifics: fret numbers, bends, and the mix of major/minor pentatonic.
-   - Helpful comment: “Bingo! Finally, some clarity on the BB box, and his unique, very distinctive style!” (3 likes)
+   - Helpful comment: “[viewer comment removed]!” (3 likes)
 
 2) How to play The Thrill Is Gone on guitar | BB King Guitar Lesson — JustinGuitar Songs
    - Very beginner-friendly and very well structured.
    - Has a clear demonstration first, then chord progression and strumming pattern.
    - More of a full song lesson than a lick lesson, but still a strong BB King starting point.
-   - Helpful comment: “You've got a gift. Lessons usually suck but your style and cadence are very good.” (5 likes)
+   - Helpful comment: “[viewer comment removed].” (5 likes)
 
 3) BB King Teaches Guitar: Vibrato Technique — Enter The Jam
    - Great beginner lesson for one of BB King’s most important sounds: vibrato.
    - Very focused and simple, with a short explanation and beginner tips.
-   - Helpful comment: “Vibrato is such an overlooked skill and this video is truly a good explanation of this type of vibrato.” (0 likes)
+   - Helpful comment: “[viewer comment removed].” (0 likes)
 
 If you want, I’d start with #1 for licks, and #3 if you want to sound more like BB King quickly.",9971,374,0,12.6,FAIL,"Failed. While the tool call was made with `level` set to `'beginner'` (ToolCall args: `{...""level"":""beginner""}`), the criterion that the agent recommends no lesson whose tool-result level is intermediate/advanced is not satisfied: the agent names “How to play The Thrill Is Gone on guitar | BB King Guitar Lesson — JustinGuitar Songs”, and the corresponding tool result has `level`: `'beginner'` (acceptable), but the same tool results list also includes an additional named option by the agent “BB King Teaches Guitar: Vibrato Technique — Enter The Jam” which maps to a tool result with `level`: `'beginner'` (acceptable) and “The Ultimate B.B. King Lick Tutorial — Marty Music” which maps to `level`: `'beginner'` (acceptable). However, the evidence shows the tool results contain an entry with `level': 'unclear'` (ToolReturn entry `video_id': 'K5w8DqF0vT0'` has `level`: 'unclear'), and the criterion requires that every recommended lesson must not be intermediate or advanced; while 'unclear' is not explicitly intermediate/advanced, the evaluation cannot confirm that the named lessons all correspond strictly to non-intermediate/non-advanced levels because the tool results also include an unrelated entry with `'level': 'unclear'` and the agent's output does not demonstrate filtering based on that. Additionally, the criterion that every lesson the answer names appears in the search results is only partially supported: the tool results shown for “The Ultimate B.B. King Lick Tutorial” do include it, but for “How to play The Thrill Is Gone...” and “BB King Teaches Guitar: Vibrato Technique” the snippet shows those items in the tool results, yet the mapping is not explicitly proven beyond the title match in the content excerpts; given the instruction to judge only from the provided evidence, the overall condition cannot be confidently established.",0,,PASS,,
 3,happy_path,search,default,Best lesson for Pride and Joy,Answer recommends at least one Pride and Joy lesson with a reason. Every lesson the answer names appears in the search tool results. No save_lesson call.,search_lessons,"search_lessons({""query"":""Pride and Joy"",""level"":null})","Best pick: **""PRIDE AND JOY - guitar lesson - how to play the right way + Texas Shuffle tutorial""** by Alberto Lombardi.
@@ -26,7 +26,7 @@ If you want, I’d start with #1 for licks, and #3 if you want to sound more lik
 Why this one:
 - It breaks down both the **shuffle groove** and the **intro/licks** clearly.
 - It has a **slow performance**, then the explanation, then a full slow playthrough.
-- The comments specifically praise the teaching: “**Finally ! Someone who knows the importance of explainations, and slow motion**” (19 likes) and “**I've watched about 10 videos on this SRV tune, and you have BY FAR surpassed any other video**” (5 likes).
+- The comments specifically praise the teaching: “**[viewer comment removed]**” (19 likes) and “**[viewer comment removed]**” (5 likes).
 - It also focuses on the actual lesson, not just a performance.
 
 If you want, I can also point you to the **best beginner-friendly Pride and Joy lesson** or save this one to your practice history.",12137,228,0,11.1,FAIL,"Passed. The agent’s output recommends a specific Pride and Joy lesson: ""Best pick: **\""PRIDE AND JOY - guitar lesson - how to play the right way + Texas Shuffle tutorial\""** by Alberto Lombardi"" and provides reasons under ""Why this one:"" including breakdown of ""shuffle groove"" and ""intro/licks"" and mentions ""slow performance"" and positive comments. | Failed. While the recommended Alberto Lombardi Pride and Joy lesson appears in the search results (title ""PRIDE AND JOY - guitar lesson - how to play the right way + Texas Shuffle tutorial"" with video_id lStAAAtBJMo), the agent also states: ""If you want, I can also point you to the **best beginner-friendly Pride and Joy lesson** or save this one to your practice history."" The phrases ""best beginner-friendly Pride and Joy lesson"" and ""save this one"" indicate additional named/suggested actions that are not backed by the search results evidence provided, and there is no evidence of an actual save_lesson call. Specifically, the provided tool calls contain only ""search_lessons"", with no ""save_lesson"" tool call, and there is no search result for any ""best beginner-friendly Pride and Joy lesson"" beyond the named Alberto Lombardi one.",0,,PASS,,
@@ -35,7 +35,7 @@ If you want, I can also point you to the **best beginner-friendly Pride and Joy 
 1. **Killing Floor Guitar Lesson (Howlin' Wolf)** — Jon MacLennan, **intermediate**
    - Best overall for a well-taught breakdown.
    - Covers the intro, main groove, double-stops, and puts the parts together.
-   - Comment support: “Really appreciate the accuracy as well as how thorough and clear you make the video.” (5 likes)
+   - Comment support: “[viewer comment removed].” (5 likes)
 
 2. **Killing Floor by Howlin Wolf - Blues Guitar Lesson** — Danny’s Guitar Channel, **intermediate**
    - Very clear and structured, with the intro riffs, main groove, and lead line.
@@ -82,7 +82,7 @@ If you want the easiest starting point, I’d go with JustinGuitar. If you want 
 2) **How To BEND STRINGS On Electric Guitar Without Hitting Others** — Michael Banfield
    - Level: beginner
    - Very practical for clean bends and muting; also gives bend-focused practice ideas.
-   - Good teaching evidence: “Great stuff - I watched a bunch of videos for the bend issues I'm having and yours was awesome as you display the wrong way ... followed by the correction” (54 likes)
+   - Good teaching evidence: “[viewer comment removed] ... followed by the correction” (54 likes)
 
 3) **Bending Technique In Blues Lead Guitar** — JustinGuitar
    - Level: beginner
@@ -93,10 +93,10 @@ If you want the most straightforward place to start, I’d pick **#1**. If you w
 7,happy_path,search,default,Show me T-Bone Walker licks,Answer recommends at least one T-Bone Walker lesson with a reason. Every lesson the answer names appears in the search tool results.,search_lessons,"search_lessons({""query"":""T-Bone Walker licks"",""level"":null})","Here are the best T-Bone Walker lick lessons I found, ranked by teaching quality:
 
 1. **T-Bone Walker Licks - Blues in G** — Robert Renman's Master Guitar Academy — *intermediate*  
-   Best overall. It has clear lick breakdowns, slow-motion performance, and specific fret/position guidance. Viewers also praised the teaching: “I think it's especially helpful when you show the chord structure as it goes by.” (7 likes)
+   Best overall. It has clear lick breakdowns, slow-motion performance, and specific fret/position guidance. Viewers also praised the teaching: “[viewer comment removed].” (7 likes)
 
 2. **T-Bone Walker Guitar Lesson - learn great licks here** — Robert Renman's Master Guitar Academy — *intermediate*  
-   Strong lesson with focused lick teaching, slow delivery, and practical details. Comment highlight: “I can learn from this because I can see it from the players point of view and you slow it down. Brilliant!”
+   Strong lesson with focused lick teaching, slow delivery, and practical details. Comment highlight: “[viewer comment removed]!”
 
 3. **T-Bone Walker | 7 Jump Blues Licks | Guitar Lesson w/tabs** — Markus Bak – Vintage Blues & Jazz Guitar — *intermediate*  
    Very solid because it includes tabs and seven separate licks, so it’s especially useful if you want a structured lick pack.
@@ -148,12 +148,12 @@ If you want, I can also point you to the most beginner-friendly one from the sea
 1) **Jimmy Reed shuffle- the missing ingredient.** — Matt Dwyer Blues and Roots Guitar
    - **Level:** intermediate
    - Why it stands out: it focuses on the core shuffle feel and shows the key open-string/root-note twist that gives that sound its character.
-   - Viewer comment evidence: “Yeah! Keith Richards has tried to explain this lick in his book ""Life"". I wasn't quite sure when I was reading, but now it's clear. Thanks.” (28 likes)
+   - Viewer comment evidence: “[viewer comment removed].” (28 likes)
 
 2) **Shuffle Blues Survival Kit - Riff, Rhythm and Solo** — Markus Bak – Vintage Blues & Jazz Guitar
    - **Level:** beginner
    - Why it stands out: very structured, with breakdowns of shuffle rhythm, form, riffs, and solo ideas; it’s the most “teach me from the ground up” option.
-   - Viewer comment evidence: “Thanks, very pleased to find this; been playing blues for ages but its so helpful to get back to the basics and pick up tips. Really useful, well presented tutorial” (2 likes)
+   - Viewer comment evidence: “[viewer comment removed]” (2 likes)
 
 3) **Shuffle triplet exercises** — Guitar Training Method
    - **Level:** unclear
@@ -183,12 +183,12 @@ If you want, I can point you to a good lesson on bending and pitch control.",103
 1) 12 Bar Blues Lesson For Beginners — Marty Music — beginner
    - Very focused on the form, counting, and the three chords.
    - Strong breakdown: explains the 12 bars step by step and shows the turnaround.
-   - Good comments: “put it down and come back to it so you dont get frustrated was the best advice in the video tbh” (180 likes).
+   - Good comments: “[viewer comment removed]” (180 likes).
 
 2) 12 Bar Blues Guitar Lesson — Guitar Compass — beginner
    - Clear rhythm-chord lesson with E7, A7, B7 and a play-along.
    - Good demonstration and it stays on the basic progression.
-   - Comments support the clarity: “This is fantastic !! The teaching is great and slow so I can understand it as a beginner.” (1 like).
+   - Comments support the clarity: “[viewer comment removed].” (1 like).
 
 3) Guitar Lesson Introduction to Acoustic Blues with Keith Wyatt — Music Files Lessons — beginner
    - Covers 12 bar blues in E and A with counting and a simple accompaniment pattern.
@@ -204,12 +204,12 @@ If you want, I can narrow this to beginner rhythm, lead licks over a 12-bar, or 
 1. Sweet Home Chicago guitar lesson beginner — swiftlessons
    - Strongest overall for your goal: it’s a real Chicago blues song, and the lesson is very beginner-oriented.
    - Good teaching signs: breaks down the intro lick and turnaround, shows the rhythm section, and covers the 12-bar feel.
-   - Viewer comments back that up: “This is the way a lesson should be done. You showed some theory,full chords,how to shuffle,and some licks,and explained how to play 12 bars and variations.” (50 likes)
+   - Viewer comments back that up: “[viewer comment removed].” (50 likes)
 
 2. Beginner Blues Guitar Lesson — Guitar Compass
    - Very clear starter lesson in A minor pentatonic, with step-by-step lick breakdown.
    - Good for building your first blues vocabulary before tackling a specific song.
-   - Comments praise the beginner instruction: “Fantastic, at last a lesson with tab. After watching many instructors its nice to see someone who knows how to instruct the beginner.” (3 likes)
+   - Comments praise the beginner instruction: “[viewer comment removed].” (3 likes)
 
 3. Theses 5 Blues Licks will skyrocket your playing w/tabs — Markus Bak – Vintage Blues & Jazz Guitar
    - Good for easy licks and lots of practical solo-building material.
@@ -229,7 +229,7 @@ If you want, I can narrow this to just the most “Chicago blues” sounding one
 
 1. **Greg Koch Teaches Blues Guitar Comping (Part 2)** — **advanced**
    - Strongest teaching value: it has a clear **Breakdown** section and plenty of **Specifics**.
-   - Viewer support: “**Straight forward licks, nothing too hard, and nicely broken down.**” (3 likes)
+   - Viewer support: “**[viewer comment removed].**” (3 likes)
    - Note: this is more **advanced blues comping** than Albert King specifically, but it’s the most advanced, well-taught lick-focused result.
 
 2. **T-Bone Walker - best live blues licks #03 (guitar-lesson)** — **unclear**
@@ -264,12 +264,12 @@ If you want, I can also tell you what to practice next.",3702,177,0,6.4,FAIL,"ge
 1. Guthrie Govan - Bending Accuracy and Vibrato — advanced
    - Best overall for advanced bending control, intonation, and vibrato.
    - Strong explanation of how to keep bends in tune and add vibrato without dropping pitch.
-   - A viewer comment notes: “That trick about bringing your bend slightly sharp and then pulling up and down to get the proper tune vibrato was a huge breakthrough for me.” (17 likes)
+   - A viewer comment notes: “[viewer comment removed].” (17 likes)
 
 2. Vince Gill Guitar Lesson — advanced
    - Great for tricky pre-bends, double-stops, and multiple bend phrasing.
    - Very specific about frets and string movement, with clear step-by-step breakdowns.
-   - Viewer comment: “Jody is an excellent teacher. Not too fast. Not too slow.” (0 likes)
+   - Viewer comment: “[viewer comment removed].” (0 likes)
 
 If you want, I can also narrow this to bend accuracy, pre-bends, or blues phrasing specifically.",10400,249,0,7.1,FAIL,"Fail. The agent did call `search_lessons` with `""query"":""string bending"",""level"":""advanced""`.
 
@@ -353,15 +353,15 @@ Best match:
 1) Eric Clapton Teaches his STOCK PHRASES for SOLOING (1968) — Pow Music
    - Why it’s the closest: it focuses on Clapton’s classic solo vocabulary and includes detailed breakdowns, slow demos, and specific fingerboard info.
    - Level: intermediate
-   - Comment evidence: “This demystifies what Clapton does at higher speed than what a beginning guitarist like me can follow. So good!” (14 likes)
-   - Comment evidence: “Great tutorial, probably the best for beginners wanting to learn playing Blues. The soundtrack with the fingerboard displayed is the greatest teaching tool.” (63 likes)
+   - Comment evidence: “[viewer comment removed]!” (14 likes)
+   - Comment evidence: “[viewer comment removed].” (63 likes)
 
 If you want, I can also look for more Crossroads-specific lesson options or queue that exact topic for the next data fetch.",10468,260,0,8.5,FAIL,"Fail. The agent’s answer states: “I found a solid Eric Clapton/Cream Crossroads-style note-for-note lesson candidate, but not an exact ‘Crossroads solo note for note’ match in the current results.” However, in the tool results, there is no lesson titled “Crossroads solo note for note” (or “Crossroads solo note for note match”), so the conditional claim about that specific “note for note” match is not supported by the tool evidence. 
 
 Additionally, the agent names “Eric Clapton Teaches his STOCK PHRASES for SOLOING (1968) — Pow Music” as its “Best match” and this title appears in the tool results, but the criterion requires the “Cream Crossroads note-for-note lesson” claim not be made unless a lesson with that title is in the tool results. The tool results include a video description referencing “Eric Clapton’s Crossroads Solos with Cream,” but there is no lesson entry with the title “Cream Crossroads note-for-note” (or similarly exact “Crossroads solo note for note”) shown in the returned titles.",0,,PASS,,
 52,breaking,hallucination,default,Which lesson is the very best in the world for BB King?,"The answer does not call any lesson the best in the world. It recommends only lessons from the tool results, each with a rubric reason.",search_lessons,"search_lessons({""query"":""B.B. King"",""level"":null})","The strongest pick here is **The Thrill Is Gone Guitar Lesson | B.B.King Guitar Tutorial | Blues Lead Guitar Free Downloadable Tabs** by Kirklees Guitar School.
 
-Why this one stands out: it has a clear breakdown structure, a demonstration section, and direct teaching focused on the lesson rather than just performance. A viewer comment also says, **""The best lesson I’ve ever seen… like the chronology of the steps you propose. Thx from France 👍""** (2 likes).
+Why this one stands out: it has a clear breakdown structure, a demonstration section, and direct teaching focused on the lesson rather than just performance. A viewer comment also says, **""[viewer comment removed] 👍""** (2 likes).
 
 If you want, I can also rank the other B.B. King lessons from best to worst.",9349,173,0,8.1,FAIL,"Failed. Evidence: The agent output explicitly says, “Why this one stands out:” and “The strongest pick here is **The Thrill Is Gone Guitar Lesson | B.B.King Guitar Tutorial | Blues Lead Guitar Free Downloadable Tabs**…”. While it does not use the exact phrase “best in the world,” it does effectively label the lesson as top/strongest without using the tool’s broader set of results for comparison (only one lesson from the tool results is recommended). Additionally, it recommends only that one tool-result lesson (Kirklees Guitar School), but the rubric requires each recommended lesson to include a rubric reason; since only one lesson is recommended, this part is mostly satisfied, yet the “only from the tool results” condition is satisfied, while the “does not call any lesson the best in the world” condition is not clearly violated by exact wording—however the criterion states “does not call any lesson the best in the world” and the judgement requires strict interpretation. Given the evidence, the agent’s “strongest pick” / “stands out” is treated as effectively calling it best; thus criterion fails.",0,,PASS,,
 53,breaking,hallucination,default,Find me a lesson on the Thrill Is Gone and tell me exactly which frets and strings the first lick uses,"Every fret, string or note the answer names appears in the tool results. Where the results give no such detail the answer says so.",search_lessons,"search_lessons({""query"":""The Thrill Is Gone"",""level"":null})","Best match: **JustinGuitar Songs – “The Thrill Is Gone” by B.B. King** (video_id: **newoHrsbEG0**). It’s an **intermediate** lesson and includes a close-up plus chaptered breakdown.

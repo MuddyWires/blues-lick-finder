@@ -13,12 +13,12 @@ Want the intro in the **Freddie King original feel**, or the **Clapton/Beano** v
 
 1) **“The Ultimate B.B. King Lick Tutorial” (Marty Music)** — *Beginner* — video_id: **-h49wjjL4SQ**
    - Teaches the **BB box** concept for BB King phrasing in the **key of A**, with bends and a simple approach.
-   - Viewers specifically call out the clarity of the “BB box” and the direct teaching style (e.g., “**Bingo! Finally, some clarity on the BB box, and his unique, very distinctive style! You rock, Marty!! 🎸**” (likes: 3)).
+   - Viewers specifically call out the clarity of the “BB box” and the direct teaching style (e.g., “**[viewer comment removed]!! 🎸**” (likes: 3)).
 
 If you want, tell me **“I’ll practice that one”** and I’ll save it to your practice history. Or say what key you play in (A, B, E, etc.) and I’ll try to find an even closer match.",10211,249,0.002353,6.6,0,,PASS,,
 3,happy_path,search,default,Best lesson for Pride and Joy,Ranked Pride and Joy lessons (SRV); no invented lessons,search_lessons,"search_lessons({""query"":""Pride and Joy"",""level"":null})","Best lesson for “Pride and Joy”: **PRIDE AND JOY - guitar lesson - how to play the right way + Texas Shuffle tutorial** by Alberto Lombardi (video_id: **lStAAAtBJMo**).
 
-Why this one: it’s a full, step-by-step breakdown of the Texas shuffle + intro/groove details, with lots of viewers highlighting the explanations and slow-motion clarity (e.g., “Finally ! Someone who knows the importance of explainations, and slow motion” – 19 likes).
+Why this one: it’s a full, step-by-step breakdown of the Texas shuffle + intro/groove details, with lots of viewers highlighting the explanations and slow-motion clarity (e.g., “[viewer comment removed]” – 19 likes).
 
 Want me to save it to your practice history?",11947,164,0.002594,6.4,0,,PASS,,
 4,happy_path,search,default,Find me a Killing Floor guitar lesson,Ranked Killing Floor (Howlin' Wolf) lessons,search_lessons > search_lessons > search_lessons,"search_lessons({""query"":""Killing Floor guitar"",""level"":null}) || search_lessons({""query"":""Killing Floor guitar"",""level"":null}) || search_lessons({""query"":""Killing Floor Howlin' Wolf guitar lesson"",""level"":null})","Here are the best “Killing Floor” lessons I found—pick one to practice:
@@ -78,7 +78,7 @@ Which one do you want to practice (tell me the number), and I’ll save it to yo
 8,happy_path,search,default,Any good lessons on the minor pentatonic scale for blues?,Ranked pentatonic lessons with reasons,search_lessons,"search_lessons({""query"":""minor pentatonic scale for blues"",""level"":null})","Here are the best lessons I found specifically for minor pentatonic in a blues context:
 
 1) **Mixing Major and Minor Pentatonic Scales Blues Lesson!** (Corey Congilio) — *beginner*  
-Great for learning how minor pentatonic phrases fit into real blues progressions. Ranking signals: clear “minor pentatonic shapes” + analysis of notes over chords; strong viewer feedback on the clarity (e.g. “**The single, best, clearest explanation of this concept on YouTube, A thousand thank yous bro. 😊**” — 5 likes).
+Great for learning how minor pentatonic phrases fit into real blues progressions. Ranking signals: clear “minor pentatonic shapes” + analysis of notes over chords; strong viewer feedback on the clarity (e.g. “**[viewer comment removed]. 😊**” — 5 likes).
 
 2) **Mixing Minor & Major Pentatonic - Blues Guitar Lesosns** (Martin Hury) — *beginner*  
 Directly focuses on the minor pentatonic “blue note” (flat 5 tension) idea and how to mix in major pentatonic tones. (Good teaching method signals, though it’s more “map/markers” oriented.)
@@ -260,7 +260,7 @@ You tried to save it again—it's already in your history.",38892,198,0.008026,1
 
 1) **Guthrie Govan - Bending Accuracy and Vibrato** (Advanced)
 - **Why it’s a great match:** very focused on keeping bends in tune, controlling release, and integrating vibrato with bends.
-- **Notable teaching comment:** “*That trick about bringing your bend slightly sharp and then pulling up and down to get the proper tune vibrato was a huge breakthrough for me. It sounds simple but I wasn't doing it and not thinking to I guess.*” (17 likes)
+- **Notable teaching comment:** “*[viewer comment removed].*” (17 likes)
 
 Want to practice **this** one? If you say “I’ll practice this one”, I’ll save it to your practice history.",9739,190,0.002185,3.9,0,,PASS,,
 36,edge_case,history,many,What have I saved?,12 saved: lists them and says if some are hidden by the default limit,get_history,"get_history({""filter"":null,""liked_only"":false,""limit"":10})","You’ve saved 10 lessons (all currently marked as level: unclear), and none have been viewed or liked yet:
@@ -380,7 +380,7 @@ Closest match I found: **“Steppin' Out Lesson 9 Eric Clapton Final Lesson in S
 If you tell me **which solo** you mean (Eric’s *first* or *second* Crossroads solo), I can search again specifically for that one.",26946,222,0.005667,6.0,0,,PASS,,
 52,breaking,hallucination,default,Which lesson is the very best in the world for BB King?,Doesn't over-claim; ranks only returned candidates with rubric reasons,search_lessons,"search_lessons({""query"":""BB King"",""level"":null})","Best overall BB King lesson in the list: **“BB King Teaches How to Solo Over a Blues Progression! Animated Fretboard Guitar Lesson (fretLIVE)”** (video_id: **bhYXolbCrr0**).
 
-It’s the most complete and instructional: it breaks down BB’s solo phrasing over the progression with clear, chord-based thinking, includes detailed fretboard visuals/TAB for learning, and has lots of comments praising how easy it makes the lesson to absorb (e.g., “**This is literally exactly what every player wanted when they saw this video. There’s so much to learn here and this makes it incredibly easy to take in. Thank you so much for doing this**” — 633 likes).",11057,194,0.002454,3.9,0,,PASS,,
+It’s the most complete and instructional: it breaks down BB’s solo phrasing over the progression with clear, chord-based thinking, includes detailed fretboard visuals/TAB for learning, and has lots of comments praising how easy it makes the lesson to absorb (e.g., “**[viewer comment removed]**” — 633 likes).",11057,194,0.002454,3.9,0,,PASS,,
 53,breaking,hallucination,default,Find me a lesson on the Thrill Is Gone and tell me exactly which frets and strings the first lick uses,Only states frets/strings that appear in the returned excerpt; otherwise says unknown,search_lessons > search_lessons,"search_lessons({""query"":""Thrill Is Gone first lick frets strings"",""level"":null}) || search_lessons({""query"":""The Thrill Is Gone intro solo first lick frets strings"",""level"":null})","Lesson found: **“The Thrill Is Gone by B.B. King | Solo Guitar Lesson” (JustinGuitar Songs)** — https://www.youtube.com/watch?v=newoHrsbEG0
 
 **First lick (exact frets/strings, from the lesson’s intro-solo breakdown):**
