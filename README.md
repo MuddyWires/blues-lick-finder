@@ -78,6 +78,8 @@ notebooks/        setup check and the first RAG baseline
 
 Dependencies point one way: `agent` calls `business`, which calls `integrations`. `tests/unit/test_architecture.py` enforces it.
 
+**Flow diagrams** of a question's path through the agent, the offline data index and the evaluation loop are in [docs/flow.md](docs/flow.md).
+
 ## Tests
 
 Free tests (no model, no network) run by default and in CI. Tests that call a real model need `--llm` and cost a few cents.
