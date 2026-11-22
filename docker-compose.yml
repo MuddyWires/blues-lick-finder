@@ -3,6 +3,9 @@ x-app: &app
   build: .
   image: blues-lick-finder:local
   env_file: .env
+  environment:
+    # Use LICK_DATA_DIR=/app/data/sample for the bundled demo data.
+    LICK_DATA_DIR: ${LICK_DATA_DIR:-/app/data}
   volumes:
     - ./data:/app/data
 

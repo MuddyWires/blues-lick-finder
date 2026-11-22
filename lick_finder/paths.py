@@ -1,6 +1,10 @@
+import os
 from pathlib import Path
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+# LICK_DATA_DIR points the app at another data folder, e.g. data/sample for the demo.
+DATA_DIR = Path(
+    os.getenv("LICK_DATA_DIR") or Path(__file__).resolve().parent.parent / "data"
+).resolve()
 DATA_PATH = DATA_DIR / "lessons.json"
 TOPICS_PATH = DATA_DIR / "topics.txt"
 LEVELS_PATH = DATA_DIR / "levels.json"

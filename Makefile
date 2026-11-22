@@ -1,10 +1,18 @@
-.PHONY: help install index lint format test test-llm run app label eval judge retrieval logs-to-cases fetch docker-up docker-fetch docker-index
+.PHONY: help install demo demo-app index lint format test test-llm run app label eval judge retrieval logs-to-cases fetch docker-up docker-fetch docker-index
 
 help:            ## list the targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/ -/'
 
 install:         ## install dependencies (including the Streamlit app group)
 	uv sync --group app
+
+demo:            ## chat with the bundled sample data: no fetch or index needed (still needs OPENAI_API_KEY)
+	@touch data/sample/topics.txt
+	LICK_DATA_DIR=data/sample uv run python -m lick_finder
+
+demo-app:        ## the Streamlit chat on the bundled sample data
+	@touch data/sample/topics.txt
+	LICK_DATA_DIR=data/sample uv run --group app streamlit run streamlit_app/app.py
 
 index:           ## label new lessons and embed new chunks (the only step that calls OpenAI to prepare data)
 	uv run python -m lick_finder.integrations.index

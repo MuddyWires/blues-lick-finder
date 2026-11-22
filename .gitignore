@@ -10,6 +10,9 @@ data/levels.json
 data/chunk_embeddings.npz
 data/eval_questions.json
 data/practice_log.json
+# the demo writes these into data/sample/ while you chat
+data/sample/practice_log.json
+data/sample/topics.txt
 notebooks/03-search-eval.ipynb
 reference/
 
