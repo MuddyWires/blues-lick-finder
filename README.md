@@ -83,7 +83,7 @@ make install                # uv sync --group app
 
 ### Data
 
-**Just want to try it?** `make demo` (terminal) or `make demo-app` (Streamlit) uses a small bundled dataset in `data/sample/` (36 lessons, short transcript excerpts only, already indexed), so there is nothing to fetch. It still needs `OPENAI_API_KEY`. In Docker: `LICK_DATA_DIR=/app/data/sample docker compose up --build`. See `data/sample/README.md`.
+**Just want to try it?** `make demo` (terminal) or `make demo-app` (Streamlit) uses a small bundled dataset in `data/sample/` (36 lessons, each with a short summary of what it teaches instead of transcript text, already indexed), so there is nothing to fetch. It still needs `OPENAI_API_KEY`. In Docker: `LICK_DATA_DIR=/app/data/sample docker compose up --build`. See `data/sample/README.md`.
 
 For the full dataset:
 
@@ -209,7 +209,7 @@ Cost is estimated from token usage with the prices in `lick_finder/cost.py`. It 
 - **Quotes and timestamps are not verified** against the comments the search returned. Recommended lesson ids are checked; quoted comments inside the answer text are not.
 - **The 60 labels** used to score the judge were written by an AI assistant, not by a person, so the judge numbers show agreement with it. The 65 scenarios were written with an AI assistant as well.
 - **Results vary between runs,** so one run per model is a rough comparison.
-- **The sample dataset is thin:** short excerpts, no comments, so answers differ from the full data.
+- **The sample dataset is thin:** it searches short summaries of each lesson, not transcripts or comments, so its answers are less detailed than with the full data.
 
 ## Self-evaluation
 

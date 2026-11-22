@@ -16,12 +16,14 @@ def lessons():
     return json.loads((SAMPLE / "lessons.json").read_text())
 
 
-def test_the_sample_is_small_and_has_no_comments_or_chapters():
+def test_the_sample_holds_summaries_and_no_text_from_the_videos():
     docs = lessons()
 
     assert 20 <= len(docs) <= 60
     assert all(d["comments"] == [] and d["chapters"] == [] for d in docs)
-    assert all(len(d["transcript"]) <= 4500 and len(d["description"]) <= 300 for d in docs)
+    assert all(d["description"] == "" for d in docs)
+    # The `transcript` field holds a short summary written for the demo, not transcript text.
+    assert all(0 < len(d["transcript"]) <= 1200 for d in docs)
 
 
 def test_every_sample_lesson_has_a_level():
