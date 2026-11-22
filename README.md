@@ -5,7 +5,7 @@ An agent that finds well-taught blues guitar lessons for a song or technique, ra
 **At a glance**
 
 - **Agent:** seven tools (search, save, history, open, like, queue a topic, and a "not supported yet" stub) on `gpt-5.4-mini`. Recommended lessons are checked against the lesson data before you see them.
-- **Tests:** 139 free tests plus 12 real-model tests (including tests of the LLM judge). CI runs lint, tests and a Docker build.
+- **Tests:** 140 free tests plus 12 real-model tests (including tests of the LLM judge). CI runs lint, tests and a Docker build.
 - **Evaluation:** 65 scenarios scored by tool use and an LLM judge (63 of 65 pass the tool check), and search scored on its own on 31 hand-written questions with a held-out test set.
 - **Monitoring:** Logfire traces with cost per question, a usage report, and thumbs up/down feedback.
 - **Run it:** `make demo` chats with a small bundled dataset, so there is nothing to fetch (it needs an OpenAI key). Docker and a Makefile are included. See [Example session](#example-session) if you don't want to run it.
